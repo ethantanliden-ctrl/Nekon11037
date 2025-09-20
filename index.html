@@ -12,12 +12,32 @@
       justify-content: center;
       align-items: center;
       flex-direction: column;
-      background-color: #fff8dc; /* 淡黄色背景 */
       font-family: "Segoe UI", "PingFang SC", sans-serif;
       overflow: hidden;
       text-align: center;
+      background: linear-gradient(-45deg, #ff9a9e, #fad0c4, #fad390, #d8b5ff);
+      background-size: 400% 400%;
+      animation: gradientBG 12s ease infinite;
     }
-    /* 2D心形 */
+    @keyframes gradientBG {
+      0% {background-position: 0% 50%;}
+      50% {background-position: 100% 50%;}
+      100% {background-position: 0% 50%;}
+    }
+    /* 星星闪烁 */
+    .star {
+      position: fixed;
+      width: 2px;
+      height: 2px;
+      background: white;
+      border-radius: 50%;
+      animation: twinkle 2s infinite alternate;
+    }
+    @keyframes twinkle {
+      from {opacity: 0.2;}
+      to {opacity: 1;}
+    }
+    /* 心形 */
     .heart {
       position: relative;
       width: 100px;
@@ -36,23 +56,13 @@
       background: #ff4d6d;
       border-radius: 50%;
     }
-    .heart::before {
-      top: -50px;
-      left: 0;
-    }
-    .heart::after {
-      left: 50px;
-      top: 0;
-    }
+    .heart::before { top: -50px; left: 0; }
+    .heart::after { left: 50px; top: 0; }
     @keyframes beat {
-      0%, 100% { transform: scale(1) rotate(-45deg); }
-      50% { transform: scale(1.2) rotate(-45deg); }
+      0%,100% {transform: scale(1) rotate(-45deg);}
+      50% {transform: scale(1.2) rotate(-45deg);}
     }
-    h1 {
-      font-size: 2em;
-      margin-bottom: 30px;
-      color: #333;
-    }
+    h1 { font-size: 2em; margin-bottom: 30px; color: #fff; text-shadow: 1px 1px 3px #000; }
     .btn {
       padding: 12px 28px;
       font-size: 1.2em;
@@ -63,39 +73,58 @@
       transition: transform 0.2s;
       position: relative;
     }
-    .yes {
-      background: #ff4d6d;
-      color: #fff;
-    }
-    .no {
+    .yes { background: #ff4d6d; color: #fff; }
+    .no { background: #fff; color: #ff4d6d; border: 2px solid #ff4d6d; position: absolute; }
+    .btn:hover { transform: scale(1.1); }
+    #envelope {
+      width: 200px;
+      height: 120px;
       background: #fff;
-      color: #ff4d6d;
-      border: 2px solid #ff4d6d;
-      position: absolute;
+      position: relative;
+      margin-top: 20px;
+      display: none;
+      cursor: pointer;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
     }
-    .btn:hover {
-      transform: scale(1.1);
+    #envelope::before {
+      content:"";
+      position:absolute;
+      top:-60px;
+      left:0;
+      border-left:100px solid transparent;
+      border-right:100px solid transparent;
+      border-bottom:60px solid #fff;
     }
     #result {
       margin-top: 30px;
       font-size: 1.5em;
-      color: #333;
+      color: #fff;
       display: none;
+      text-shadow: 1px 1px 3px #000;
     }
-    /* 飘落的小爱心 */
-    .falling-heart {
+    .falling {
       position: fixed;
       top: -20px;
-      font-size: 20px;
-      color: #ff4d6d;
       animation: fall linear forwards;
       pointer-events: none;
     }
     @keyframes fall {
-      to {
-        transform: translateY(110vh) rotate(360deg);
-        opacity: 0;
-      }
+      to { transform: translateY(110vh) rotate(360deg); opacity:0; }
+    }
+    .trail {
+      position: fixed;
+      pointer-events: none;
+      animation: fadeOut 1s forwards;
+    }
+    @keyframes fadeOut {
+      to {opacity: 0; transform: scale(0);}
+    }
+    #hidden {
+      display: none;
+      margin-top: 20px;
+      font-size: 1.2em;
+      color: yellow;
+      text-shadow: 1px 1px 4px #000;
     }
   </style>
 </head>
@@ -109,18 +138,18 @@
     <button class="btn no" id="noBtn" onclick="reply(false)">不喜欢 😢</button>
   </div>
 
+  <div id="envelope" onclick="openLetter()"></div>
   <div id="result"></div>
-
-  <!-- 背景音乐（可换链接） -->
-  <audio id="bgm" autoplay loop>
-    <source src="https://www.bensound.com/bensound-music/bensound-romantic.mp3" type="audio/mp3">
-  </audio>
+  <div id="hidden">💛 我会永远爱你 💛</div>
 
 <script>
 const noBtn = document.getElementById("noBtn");
 let result = document.getElementById("result");
+let envelope = document.getElementById("envelope");
+let hiddenMsg = document.getElementById("hidden");
+let likeCount = 0;
 
-// 不喜欢按钮逃跑逻辑
+// 不喜欢按钮逃跑
 document.addEventListener("mousemove", (e) => {
   const rect = noBtn.getBoundingClientRect();
   const distance = Math.hypot(
@@ -139,28 +168,73 @@ document.addEventListener("mousemove", (e) => {
   }
 });
 
-// 点击喜欢
+// 点喜欢
 function reply(answer){
   if(answer){
-    result.innerHTML = "耶！我就知道你会喜欢我 💖<br>从现在开始，我们就是彼此的唯一啦~ 🥰";
-    result.style.display = "block";
-    startHearts();
+    likeCount++;
+    if(likeCount === 1){
+      envelope.style.display = "block";
+      startFall();
+    }
+    if(likeCount === 3){
+      hiddenMsg.style.display = "block";
+    }
   }
 }
 
-// 爱心飘落特效
-function startHearts(){
-  setInterval(() => {
-    const heart = document.createElement("div");
-    heart.className = "falling-heart";
-    heart.innerText = "💖";
-    heart.style.left = Math.random() * 100 + "vw";
-    heart.style.fontSize = (Math.random()*20+10) + "px";
-    heart.style.animationDuration = (Math.random()*3+3) + "s";
-    document.body.appendChild(heart);
-    setTimeout(()=>heart.remove(),5000);
-  }, 300);
+// 打开发信封 → 打字机效果显示文字
+function openLetter(){
+  envelope.style.display = "none";
+  typeText("耶！我就知道你会喜欢我 💖 从现在开始，我们就是彼此的唯一啦~ 🥰");
 }
+
+// 打字机效果
+function typeText(text){
+  let i = 0;
+  result.style.display = "block";
+  result.innerHTML = "";
+  let interval = setInterval(()=>{
+    result.innerHTML += text.charAt(i);
+    i++;
+    if(i >= text.length) clearInterval(interval);
+  },100);
+}
+
+// 飘落效果（樱花+爱心）
+function startFall(){
+  setInterval(() => {
+    const el = document.createElement("div");
+    el.className = "falling";
+    el.innerText = Math.random() > 0.5 ? "🌸" : "💖";
+    el.style.left = Math.random() * 100 + "vw";
+    el.style.fontSize = (Math.random()*20+15) + "px";
+    el.style.animationDuration = (Math.random()*4+4) + "s";
+    document.body.appendChild(el);
+    setTimeout(()=>el.remove(),6000);
+  }, 400);
+}
+
+// 星星
+for(let i=0;i<50;i++){
+  const star=document.createElement("div");
+  star.className="star";
+  star.style.top=Math.random()*100+"vh";
+  star.style.left=Math.random()*100+"vw";
+  star.style.animationDuration=(Math.random()*2+1)+"s";
+  document.body.appendChild(star);
+}
+
+// 鼠标跟随爱心轨迹
+document.addEventListener("mousemove",(e)=>{
+  const heart=document.createElement("div");
+  heart.className="trail";
+  heart.innerText="💖";
+  heart.style.left=e.pageX+"px";
+  heart.style.top=e.pageY+"px";
+  heart.style.fontSize="16px";
+  document.body.appendChild(heart);
+  setTimeout(()=>heart.remove(),1000);
+});
 </script>
 
 </body>
