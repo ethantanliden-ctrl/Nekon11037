@@ -17,22 +17,41 @@
       overflow: hidden;
       text-align: center;
     }
+    /* 2D心形 */
     .heart {
-      font-size: 5em;
-      color: #ff4d6d;
+      position: relative;
+      width: 100px;
+      height: 90px;
+      background: #ff4d6d;
       margin-bottom: 20px;
+      transform: rotate(-45deg);
       animation: beat 1s infinite;
-      z-index: 2;
+    }
+    .heart::before,
+    .heart::after {
+      content: "";
+      position: absolute;
+      width: 100px;
+      height: 90px;
+      background: #ff4d6d;
+      border-radius: 50%;
+    }
+    .heart::before {
+      top: -50px;
+      left: 0;
+    }
+    .heart::after {
+      left: 50px;
+      top: 0;
     }
     @keyframes beat {
-      0%, 100% { transform: scale(1); }
-      50% { transform: scale(1.2); }
+      0%, 100% { transform: scale(1) rotate(-45deg); }
+      50% { transform: scale(1.2) rotate(-45deg); }
     }
     h1 {
       font-size: 2em;
       margin-bottom: 30px;
       color: #333;
-      z-index: 2;
     }
     .btn {
       padding: 12px 28px;
@@ -42,7 +61,6 @@
       cursor: pointer;
       margin: 10px;
       transition: transform 0.2s;
-      z-index: 2;
       position: relative;
     }
     .yes {
@@ -59,119 +77,90 @@
       transform: scale(1.1);
     }
     #result {
-      margin-top: 40px;
+      margin-top: 30px;
       font-size: 1.5em;
       color: #333;
       display: none;
-      z-index: 2;
-      animation: fadeIn 2s ease;
     }
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-    canvas {
+    /* 飘落的小爱心 */
+    .falling-heart {
       position: fixed;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
+      top: -20px;
+      font-size: 20px;
+      color: #ff4d6d;
+      animation: fall linear forwards;
       pointer-events: none;
-      z-index: 1;
+    }
+    @keyframes fall {
+      to {
+        transform: translateY(110vh) rotate(360deg);
+        opacity: 0;
+      }
     }
   </style>
 </head>
 <body>
 
-  <canvas id="heartsCanvas"></canvas>
-
-  <div class="heart">❤️</div>
+  <div class="heart"></div>
   <h1>你喜欢我吗？</h1>
 
   <div>
-    <button class="btn yes" onclick="reply(true)">喜欢</button>
-    <button class="btn no" id="noBtn">不喜欢</button>
+    <button class="btn yes" onclick="reply(true)">喜欢 ❤️</button>
+    <button class="btn no" id="noBtn" onclick="reply(false)">不喜欢 😢</button>
   </div>
 
   <div id="result"></div>
 
-  <!-- 隐藏的音乐播放器 -->
-  <audio id="bgMusic" loop>
-    <source src="https://www.bensound.com/bensound-music/bensound-tenderness.mp3" type="audio/mp3">
-    你的浏览器不支持音频播放。
+  <!-- 背景音乐（可换链接） -->
+  <audio id="bgm" autoplay loop>
+    <source src="https://www.bensound.com/bensound-music/bensound-romantic.mp3" type="audio/mp3">
   </audio>
 
 <script>
-// --- 不喜欢按钮躲避效果 ---
 const noBtn = document.getElementById("noBtn");
-noBtn.addEventListener("mouseover", () => {
-  const x = Math.floor(Math.random() * (window.innerWidth - 150));
-  const y = Math.floor(Math.random() * (window.innerHeight - 100));
-  noBtn.style.left = x + "px";
-  noBtn.style.top = y + "px";
+let result = document.getElementById("result");
+
+// 不喜欢按钮逃跑逻辑
+document.addEventListener("mousemove", (e) => {
+  const rect = noBtn.getBoundingClientRect();
+  const distance = Math.hypot(
+    e.clientX - (rect.left + rect.width/2),
+    e.clientY - (rect.top + rect.height/2)
+  );
+  if(distance < 100){
+    const offsetX = (rect.left - e.clientX) * 2;
+    const offsetY = (rect.top - e.clientY) * 2;
+    let newX = rect.left + offsetX;
+    let newY = rect.top + offsetY;
+    newX = Math.min(window.innerWidth - rect.width, Math.max(0, newX));
+    newY = Math.min(window.innerHeight - rect.height, Math.max(0, newY));
+    noBtn.style.left = newX + "px";
+    noBtn.style.top = newY + "px";
+  }
 });
 
-// --- 喜欢按钮点击效果 ---
+// 点击喜欢
 function reply(answer){
-  const result = document.getElementById("result");
-  const music = document.getElementById("bgMusic");
-  music.play(); // 用户点击时触发播放
-
   if(answer){
     result.innerHTML = "耶！我就知道你会喜欢我 💖<br>从现在开始，我们就是彼此的唯一啦~ 🥰";
     result.style.display = "block";
+    startHearts();
   }
 }
 
-// --- 飘落爱心特效 ---
-const canvas = document.getElementById("heartsCanvas");
-const ctx = canvas.getContext("2d");
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
-
-let hearts = [];
-function Heart(x, y, size, speed){
-  this.x = x;
-  this.y = y;
-  this.size = size;
-  this.speed = speed;
-  this.opacity = Math.random()*0.5 + 0.5;
+// 爱心飘落特效
+function startHearts(){
+  setInterval(() => {
+    const heart = document.createElement("div");
+    heart.className = "falling-heart";
+    heart.innerText = "💖";
+    heart.style.left = Math.random() * 100 + "vw";
+    heart.style.fontSize = (Math.random()*20+10) + "px";
+    heart.style.animationDuration = (Math.random()*3+3) + "s";
+    document.body.appendChild(heart);
+    setTimeout(()=>heart.remove(),5000);
+  }, 300);
 }
-function drawHeart(h){
-  ctx.fillStyle = `rgba(255,77,109,${h.opacity})`;
-  ctx.beginPath();
-  const topCurveHeight = h.size * 0.3;
-  ctx.moveTo(h.x, h.y + topCurveHeight);
-  ctx.bezierCurveTo(h.x, h.y, h.x - h.size / 2, h.y, h.x - h.size / 2, h.y + topCurveHeight);
-  ctx.bezierCurveTo(h.x - h.size / 2, h.y + (h.size + topCurveHeight) / 2,
-    h.x, h.y + (h.size + topCurveHeight) / 2,
-    h.x, h.y + h.size);
-  ctx.bezierCurveTo(h.x, h.y + (h.size + topCurveHeight) / 2,
-    h.x + h.size / 2, h.y + (h.size + topCurveHeight) / 2,
-    h.x + h.size / 2, h.y + topCurveHeight);
-  ctx.bezierCurveTo(h.x + h.size / 2, h.y, h.x, h.y, h.x, h.y + topCurveHeight);
-  ctx.closePath();
-  ctx.fill();
-}
-function updateHearts(){
-  ctx.clearRect(0,0,canvas.width,canvas.height);
-  for(let i=0;i<hearts.length;i++){
-    let h=hearts[i];
-    h.y+=h.speed;
-    if(h.y>canvas.height){
-      hearts[i]=new Heart(Math.random()*canvas.width, -10, Math.random()*20+10, Math.random()*2+1);
-    }
-    drawHeart(h);
-  }
-  requestAnimationFrame(updateHearts);
-}
-function initHearts(){
-  hearts=[];
-  for(let i=0;i<40;i++){
-    hearts.push(new Heart(Math.random()*canvas.width, Math.random()*canvas.height, Math.random()*20+10, Math.random()*2+1));
-  }
-  updateHearts();
-}
-initHearts();
-window.onresize=()=>{canvas.width=window.innerWidth;canvas.height=window.innerHeight;initHearts();}
 </script>
 
 </body>
