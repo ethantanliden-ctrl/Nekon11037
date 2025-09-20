@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="zh">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>告白选择器</title>
+  <style>
+    body { font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans", "PingFang SC", "Hiragino Sans GB"; padding:20px; max-width:720px; margin:auto; }
+    h1 { text-align:center }
+    .row { display:flex; gap:8px; margin-bottom:12px; flex-wrap:wrap; }
+    button.choice { padding:10px 14px; border-radius:10px; border:1px solid #ccc; background:#fff; cursor:pointer; flex:1 0 30%; min-width:120px; }
+    button.choice.selected { border-color:#2b8; box-shadow:0 4px 12px rgba(0,0,0,0.08); }
+    #result { margin-top:18px; padding:14px; border-radius:10px; background:#f7f7f8; white-space:pre-wrap; }
+  </style>
+</head>
+<body>
+  <h1>告白选择器</h1>
+
+  <div>
+    <strong>开场</strong>
+    <div class="row" id="greeting"></div>
+  </div>
+
+  <div>
+    <strong>风格</strong>
+    <div class="row" id="style"></div>
+  </div>
+
+  <div>
+    <strong>场合</strong>
+    <div class="row" id="risk"></div>
+  </div>
+
+  <div style="text-align:center; margin-top:12px;">
+    <button id="generate">生成告白句</button>
+  </div>
+
+  <div id="result" hidden></div>
+
+<script>
+const greetings = ["随意、轻松","正式、认真的","幽默、撒娇"];
+const styles = ["直接表达喜欢","用比喻/诗意","先约会再告白"];
+const risks = ["高调（当众）","私密（单独）","模糊（看气氛）"];
+
+function makeChoices(containerId, arr){
+  const container = document.getElementById(containerId);
+  arr.forEach((text,i)=>{
+    const btn = document.createElement('button');
+    btn.className = 'choice';
+    btn.innerText = text;
+    btn.dataset.idx = i;
+    btn.onclick = () => {
+      // 切换选择样式（单选）
+      Array.from(container.children).forEach(c=>c.classList.remove('selected'));
+      btn.classList.add('selected');
+    };
+    container.appendChild(btn);
+  });
+}
+
+makeChoices('greeting', greetings);
+makeChoices('style', styles);
+makeChoices('risk', risks);
+
+document.getElementById('generate').onclick = () => {
+  const g = document.querySelector('#greeting .selected');
+  const s = document.querySelector('#style .selected');
+  const r = document.querySelector('#risk .selected');
+  if(!g || !s || !r){
+    alert('请先在每一项选择一个选项。');
+    return;
+  }
+  const key = `${g.dataset.idx}-${s.dataset.idx}-${r.dataset.idx}`;
+  const map = {
+    "0-0-0": "嘿，其实和你在一起很舒服。我想告诉你：我喜欢你。要不要和我一起去喝杯东西？",
+    "1-1-1": "我想认真地说一句话：我喜欢你。我希望能和你有机会走得更近。",
+    "2-2-0": "我喜欢你，就像我喜欢把所有好东西分享给朋友——现在想把你分享给未来的每一天，愿意吗？",
+    "0-2-1": "我想慢慢来，但我也想先告诉你：我对你有好感，想单独和你约会，先从一次见面开始好吗？"
+  };
+  const result = map[key] || `我想对你说：我喜欢你。${r.innerText.includes('当众') ? '现在就想在这里说出来。' : '能不能找个时间，我想当面跟你说。'}`;
+  const box = document.getElementById('result');
+  box.hidden = false;
+  box.innerText = result;
+};
+</script>
+</body>
+</html>
