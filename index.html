@@ -1,446 +1,107 @@
 <!DOCTYPE html>
-<html lang="zh">
+<html lang="zh-CN">
 <head>
-<meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>给你的告白</title>
-<style>
-  :root{
-    --accent:#ff4d6d;
-    --bg1:#ffb3c0;   /* pink */
-    --bg2:#d8b5ff;   /* light purple */
-    --bg3:#fff3c4;   /* light yellow */
-    --txt:#222;
-  }
-  *{box-sizing:border-box}
-  html,body{height:100%;margin:0;font-family:"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif}
-  body{
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    flex-direction:column;
-    text-align:center;
-    overflow:hidden;
-    background: linear-gradient( -45deg, var(--bg1), var(--bg2), var(--bg3) );
-    background-size: 400% 400%;
-    animation: bgFlow 16s ease infinite;
-    color:var(--txt);
-  }
-  @keyframes bgFlow{
-    0%{background-position:0% 50%}
-    50%{background-position:100% 50%}
-    100%{background-position:0% 50%}
-  }
-
-  /* ---------- central UI ---------- */
-  .container{z-index:60; display:flex; flex-direction:column; align-items:center; gap:10px; padding:18px;}
-  /* 2D heart */
-  .heart{
-    width:120px; height:108px; background:var(--accent); position:relative; transform:rotate(-45deg);
-    border-radius:6px; box-shadow:0 12px 30px rgba(0,0,0,0.12); animation:beat 1000ms infinite;
-  }
-  .heart::before,.heart::after{content:"";position:absolute;width:120px;height:108px;background:var(--accent);border-radius:50%}
-  .heart::before{top:-60px;left:0}
-  .heart::after{left:60px;top:0}
-  @keyframes beat{0%,100%{transform:scale(1) rotate(-45deg)}50%{transform:scale(1.18) rotate(-45deg)}}
-
-  h1{margin:6px 0 0; font-size:2rem; color:#fff; text-shadow:0 6px 18px rgba(0,0,0,0.25)}
-
-  /* buttons: horizontal flex (avoid overlap) */
-  .controls{display:flex; gap:28px; margin-top:14px; align-items:center; justify-content:center; width:100%}
-  .btn{
-    padding:12px 22px; border-radius:28px; border:none; cursor:pointer; font-size:1rem;
-    box-shadow:0 10px 28px rgba(0,0,0,0.12); transition:transform .18s, box-shadow .18s, background .18s;
-    user-select:none; touch-action:manipulation;
-  }
-  .btn:active{transform:scale(.98)}
-  .btn-like{background:var(--accent); color:#fff; box-shadow:0 18px 46px rgba(255,77,109,0.18)}
-  .btn-like:hover{transform:scale(1.06); box-shadow:0 24px 56px rgba(255,77,109,0.28)}
-  .btn-no{background:#fff;color:var(--accent); border:2px solid var(--accent); position:relative}
-
-  /* envelope (hidden until like) */
-  #envelope{display:none; width:260px; height:150px; background:#fff; border-radius:8px; margin-top:18px; position:relative; cursor:pointer;
-            box-shadow:0 18px 40px rgba(0,0,0,0.18); z-index:70}
-  #envelope::before{content:"";position:absolute;left:0;right:0;margin:auto;top:-72px;border-left:130px solid transparent;border-right:130px solid transparent;border-bottom:72px solid #fff}
-  #result{display:none; margin-top:16px; color:#fff; max-width:88vw; font-size:1.05rem; text-shadow:0 8px 20px rgba(0,0,0,0.28); z-index:70}
-  #hiddenMsg{display:none; position:fixed; left:50%; transform:translateX(-50%); bottom:24px; z-index:90; background:rgba(0,0,0,0.28); color:#fff; padding:10px 16px; border-radius:20px; font-weight:600}
-
-  /* stars */
-  .star{position:fixed;width:3px;height:3px;background:#fff;border-radius:50%; opacity:.9; filter:drop-shadow(0 0 6px rgba(255,255,255,0.65)); animation:twinkle linear infinite; z-index:10}
-  @keyframes twinkle{0%{opacity:.15}50%{opacity:1}100%{opacity:.15}}
-
-  /* falling elements */
-  .falling{position:fixed; top:-40px; pointer-events:none; z-index:20; animation:fall linear forwards}
-  @keyframes fall{to{transform:translateY(110vh) rotate(360deg); opacity:0}}
-
-  /* trail hearts */
-  .trail{position:fixed; pointer-events:none; transform:translate(-50%,-50%); z-index:65; opacity:0.95; font-size:14px; transition:opacity .5s, transform .2s}
-
-  /* ripple wave */
-  .ripple{position:fixed;border-radius:50%;background:rgba(255,255,255,0.6); transform:scale(0); animation:rip .6s linear; pointer-events:none; z-index:80}
-  @keyframes rip{to{transform:scale(12);opacity:0}}
-
-  /* small fireworks particle */
-  .fw{position:fixed;width:6px;height:6px;border-radius:50%; pointer-events:none; z-index:85}
-
-  /* confetti piece */
-  .confetti{position:fixed;width:10px;height:16px;pointer-events:none; z-index:75; transform-origin:center; animation:spinfall linear forwards}
-  @keyframes spinfall{to{transform:translateY(110vh) rotate(720deg); opacity:0}}
-
-  /* responsive */
-  @media (max-width:520px){
-    .heart{width:88px;height:78px}
-    h1{font-size:1.4rem}
-    .controls{gap:16px}
-    .btn{padding:10px 16px; font-size:.95rem}
-    #envelope{width:86vw}
-    #result{font-size:0.96rem}
-  }
-</style>
+  <meta charset="UTF-8" />
+  <title>摩斯密码转换器</title>
+  <link rel="stylesheet" href="https://pyscript.net/latest/pyscript.css" />
+  <script defer src="https://pyscript.net/latest/pyscript.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 600px;
+      margin: 2rem auto;
+      padding: 1rem;
+      background: #f9f9f9;
+      border-radius: 8px;
+    }
+    textarea {
+      width: 100%;
+      font-size: 1rem;
+      padding: 0.5rem;
+      box-sizing: border-box;
+    }
+    button {
+      font-size: 1rem;
+      padding: 0.5rem 1rem;
+      margin-right: 10px;
+      cursor: pointer;
+    }
+    #output {
+      white-space: pre-wrap;
+      background: #fff;
+      padding: 1rem;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      min-height: 3rem;
+    }
+  </style>
 </head>
 <body>
+  <h1>摩斯密码转换器 🔁 Morse Code Converter</h1>
 
-  <div class="container">
-    <div class="heart" aria-hidden="true"></div>
-    <h1>你喜欢我吗？</h1>
+  <label for="user-input">请输入英文或摩斯码：</label><br>
+  <textarea id="user-input" rows="4" cols="50" placeholder="输入英文（如：HELLO）或摩斯码（如：.... . .-.. .-.. ---）"></textarea><br><br>
 
-    <div class="controls" role="group" aria-label="选择按钮">
-      <button class="btn btn-like" id="likeBtn">喜欢 ❤️</button>
-      <button class="btn btn-no" id="noBtn">不喜欢 😢</button>
-    </div>
+  <button py-click="to_morse">英文 ➡ 摩斯码</button>
+  <button py-click="to_english">摩斯码 ➡ 英文</button><br><br>
 
-    <div id="envelope" title="点击打开信封"></div>
-    <div id="result" role="status" aria-live="polite"></div>
-  </div>
+  <h3>转换结果：</h3>
+  <div id="output"></div>
 
-  <div id="hiddenMsg">💛 我会永远爱你 💛</div>
-
-  <!-- music control -->
-  <button id="musicToggle" style="position:fixed;right:12px;top:12px;z-index:90;padding:8px 12px;border-radius:14px;border:none;background:rgba(255,255,255,0.9);cursor:pointer;">
-    🎵 音乐
-  </button>
-
-  <!-- audio (replace src with your own legal track if desired) -->
-  <audio id="bgAudio" loop preload="auto">
-    <source src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_6d8b1f88f6.mp3?filename=romantic-piano-melody-9940.mp3" type="audio/mp3">
-  </audio>
-
-<script>
-/* =========================
-   Elements and state
-   ========================= */
-const likeBtn = document.getElementById('likeBtn');
-const noBtn = document.getElementById('noBtn');
-const envelope = document.getElementById('envelope');
-const result = document.getElementById('result');
-const hiddenMsg = document.getElementById('hiddenMsg');
-const bgAudio = document.getElementById('bgAudio');
-const musicToggle = document.getElementById('musicToggle');
-
-let likeCount = 0;
-let fallInterval = null;
-let starCount = Math.max(28, Math.floor(window.innerWidth / 28));
-
-/* =========================
-   Utility helpers
-   ========================= */
-function rand(min, max){ return Math.random()*(max-min)+min; }
-function choose(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
-
-/* =========================
-   Create stars (twinkle)
-   ========================= */
-function makeStars(){
-  for(let i=0;i<starCount;i++){
-    const s = document.createElement('div');
-    s.className = 'star';
-    s.style.left = rand(0,100) + 'vw';
-    s.style.top = rand(0,100) + 'vh';
-    s.style.animationDuration = rand(1.2,3.8).toFixed(2) + 's';
-    s.style.animationDelay = (Math.random()*4).toFixed(2) + 's';
-    s.style.opacity = (0.15 + Math.random()*0.85).toFixed(2);
-    document.body.appendChild(s);
-  }
-}
-makeStars();
-
-/* =========================
-   Mouse / touch trail hearts
-   ========================= */
-function spawnTrail(x,y){
-  const t = document.createElement('div');
-  t.className = 'trail';
-  t.innerText = '💖';
-  t.style.left = x + 'px';
-  t.style.top = y + 'px';
-  t.style.fontSize = rand(10,20) + 'px';
-  document.body.appendChild(t);
-  setTimeout(()=>{ t.style.opacity = '0'; t.style.transform = 'translate(-50%,-60%)'; }, 300);
-  setTimeout(()=> t.remove(), 900);
-}
-document.addEventListener('mousemove', e=> spawnTrail(e.pageX,e.pageY));
-document.addEventListener('touchmove', e=>{
-  if(e.touches && e.touches[0]) spawnTrail(e.touches[0].pageX, e.touches[0].pageY);
-}, {passive:true});
-
-/* =========================
-   Ripple + small fireworks on click/tap
-   ========================= */
-document.addEventListener('click', e=>{
-  // ripple
-  const r = document.createElement('div');
-  r.className = 'ripple';
-  const size = Math.max(window.innerWidth, window.innerHeight)*0.06;
-  r.style.width = r.style.height = size + 'px';
-  r.style.left = (e.clientX - size/2)+'px';
-  r.style.top  = (e.clientY - size/2)+'px';
-  document.body.appendChild(r);
-  setTimeout(()=> r.remove(),650);
-
-  // small fireworks particles
-  for(let i=0;i<10;i++){
-    const p = document.createElement('div');
-    p.className = 'fw';
-    p.style.left = e.clientX + 'px';
-    p.style.top  = e.clientY + 'px';
-    const hue = Math.floor(Math.random()*360);
-    p.style.background = `hsl(${hue} 90% 60%)`;
-    const angle = Math.random()*Math.PI*2;
-    const dist = 30 + Math.random()*110;
-    const tx = Math.cos(angle)*dist;
-    const ty = Math.sin(angle)*dist;
-    p.style.transition = 'transform 700ms cubic-bezier(.2,.7,0,1), opacity 700ms';
-    document.body.appendChild(p);
-    setTimeout(()=>{ p.style.transform = `translate(${tx}px,${ty}px)`; p.style.opacity = '0'; }, 20);
-    setTimeout(()=> p.remove(), 800);
-  }
-});
-
-/* =========================
-   Falling elements spawn
-   ========================= */
-function spawnFalling(){
-  const types = ['💖','🌸','🎈','🌹'];
-  const el = document.createElement('div');
-  el.className = 'falling';
-  el.innerText = choose(types);
-  el.style.left = rand(2,98) + 'vw';
-  el.style.fontSize = Math.floor(rand(14,32)) + 'px';
-  const dur = rand(4.5,9);
-  el.style.animationDuration = dur + 's';
-  const rot = rand(-30,30);
-  el.style.transform = `rotate(${rot}deg)`;
-  document.body.appendChild(el);
-  setTimeout(()=> el.remove(), dur*1000 + 300);
+  <py-script>
+MORSE_CODE_DICT = {
+    '.-': 'A', '-...': 'B', '-.-.': 'C', '-..': 'D', '.': 'E',
+    '..-.': 'F', '--.': 'G', '....': 'H', '..': 'I', '.---': 'J',
+    '-.-': 'K', '.-..': 'L', '--': 'M', '-.': 'N', '---': 'O',
+    '.--.': 'P', '--.-': 'Q', '.-.': 'R', '...': 'S', '-': 'T',
+    '..-': 'U', '...-': 'V', '.--': 'W', '-..-': 'X', '-.--': 'Y',
+    '--..': 'Z', '-----': '0', '.----': '1', '..---': '2',
+    '...--': '3', '....-': '4', '.....': '5', '-....': '6',
+    '--...': '7', '---..': '8', '----.': '9'
 }
 
-/* =========================
-   Confetti burst (on like)
-   ========================= */
-function confettiBurst(){
-  for(let i=0;i<30;i++){
-    const c = document.createElement('div');
-    c.className = 'confetti';
-    c.style.left = rand(10,90) + 'vw';
-    c.style.top = '-20px';
-    c.style.background = choose(['#ff4d6d','#ffd166','#6ecbff','#99ff99','#ff9966']);
-    c.style.width = '8px';
-    c.style.height = '12px';
-    c.style.animationDuration = (rand(3.6,6)).toFixed(2) + 's';
-    c.style.transform = `rotate(${rand(0,360)}deg)`;
-    document.body.appendChild(c);
-    setTimeout(()=> c.remove(), 7000);
-  }
-}
+ENGLISH_TO_MORSE = {v: k for k, v in MORSE_CODE_DICT.items()}
 
-/* =========================
-   No-button escape logic (keeps button in flow, but moves by transform; prevents overlap)
-   ========================= */
-let noLock = false;
-function moveNoButtonAway(pointerX, pointerY){
-  if(noLock) return;
-  noLock = true;
-  // compute new translate to move away from pointer
-  const rect = noBtn.getBoundingClientRect();
-  const cx = rect.left + rect.width/2;
-  const cy = rect.top + rect.height/2;
-  const dx = cx - pointerX;
-  const dy = cy - pointerY;
-  const dist = Math.hypot(dx,dy) || 1;
-  const move = Math.min( Math.max(120, 120 + (150 - dist)), window.innerWidth * 0.35 );
-  const nx = (dx / dist) * move;
-  const ny = (dy / dist) * move;
-  // animate via transform
-  noBtn.animate([
-    { transform: 'translate(0px,0px)' },
-    { transform: `translate(${nx}px,${ny}px)` }
-  ], { duration: 320, easing: 'cubic-bezier(.2,.7,0,1)' });
-  // apply permanent transform (so element stays visually moved)
-  setTimeout(()=> {
-    // read current transform and add
-    const prev = getComputedStyle(noBtn).transform;
-    // set new transform as inline
-    noBtn.style.transform = `translate(${nx}px,${ny}px)`;
-    noLock = false;
-  }, 320);
-}
+from js import document
 
-/* trigger escape on mouseover/touchstart */
-noBtn.addEventListener('mouseover', e=> moveNoButtonAway(e.clientX, e.clientY));
-noBtn.addEventListener('touchstart', e=> {
-  const t = e.touches[0];
-  moveNoButtonAway(t.clientX, t.clientY);
-  // show quick playful message
-  showNoMessage();
-}, {passive:true});
-noBtn.addEventListener('click', ()=> showNoMessage()); // fallback for click
+def decoded_code(morse_code):
+    words = morse_code.strip().split('|')
+    decoded_message = []
+    for word in words:
+        letters = word.strip().split()
+        decoded_word = ''.join(MORSE_CODE_DICT.get(letter, '?') for letter in letters)
+        decoded_message.append(decoded_word)
+    return ' '.join(decoded_message)
 
-function showNoMessage(){
-  hiddenMsg.innerText = '不喜欢？^^';
-  hiddenMsg.style.display = 'block';
-  hiddenMsg.style.opacity = '0';
-  hiddenMsg.style.transition = 'opacity .45s';
-  setTimeout(()=> hiddenMsg.style.opacity = '1', 20);
-  setTimeout(()=> { hiddenMsg.style.opacity = '0'; setTimeout(()=> hiddenMsg.style.display='none', 450); }, 1600);
-}
+def encode_to_morse(text):
+    morse_words = []
+    for word in text.strip().upper().split():
+        morse_letters = []
+        for char in word:
+            if char in ENGLISH_TO_MORSE:
+                morse_letters.append(ENGLISH_TO_MORSE[char])
+            else:
+                morse_letters.append("?")
+        morse_word = ' '.join(morse_letters)
+        morse_words.append(morse_word)
+    return ' | '.join(morse_words)
 
-/* =========================
-   LIKE button flow:
-   - first click: reveal envelope, start gentle falling, fade in music
-   - clicking envelope: open and show typewriter first small then larger
-   - likeCount=3: show permanent hidden "I will always love you"
-   - additional clicks: full-screen heart burst
-   ========================= */
-likeBtn.addEventListener('click', ()=> {
-  likeCount++;
-  if(likeCount === 1){
-    envelope.style.display = 'block';
-    if(!fallInterval) fallInterval = setInterval(spawnFalling, 650);
-    fadeInMusic();
-    confettiBurst();
-  } else if(likeCount === 2){
-    // small encouragement: gently pulse envelope
-    envelope.animate([{ transform:'scale(1)' }, { transform:'scale(1.03)' }, { transform:'scale(1)' }], { duration:900 });
-  } else if(likeCount === 3){
-    // show bottom hidden message
-    hiddenMsg.innerText = '💛 我会永远爱你 💛';
-    hiddenMsg.style.display = 'block';
-    hiddenMsg.style.opacity = '0';
-    hiddenMsg.style.transition = 'opacity 1.2s, transform 1.2s';
-    hiddenMsg.style.transform = 'translateY(8px)';
-    setTimeout(()=>{ hiddenMsg.style.opacity='1'; hiddenMsg.style.transform='translateY(0)'; }, 60);
-    confettiBurst();
-  } else if(likeCount >= 4){
-    // big heartburst
-    heartBurst();
-    confettiBurst();
-  }
-});
+def to_morse(*args):
+    input_text = document.getElementById("user-input").value
+    if not input_text.strip():
+        document.getElementById("output").innerHTML = "请输入英文文本进行转换。"
+        return
+    result = encode_to_morse(input_text)
+    document.getElementById("output").innerHTML = result
 
-/* envelope open -> typewriter multi-stage */
-envelope.addEventListener('click', openEnvelope);
-function openEnvelope(){
-  envelope.style.display = 'none';
-  // first short message then longer
-  typeWriter("💌 你好，我有些话想鼓起勇气对你说……", 40, ()=>{
-    setTimeout(()=> {
-      typeWriter("我喜欢你。不是一时的冲动，而是想和你一起看日出和日落。愿意让我陪你走未来吗？", 28);
-    }, 700);
-  });
-}
+def to_english(*args):
+    input_text = document.getElementById("user-input").value
+    if not input_text.strip():
+        document.getElementById("output").innerHTML = "请输入摩斯码进行转换。"
+        return
+    result = decoded_code(input_text)
+    document.getElementById("output").innerHTML = result
+  </py-script>
 
-/* typeWriter */
-let typeTimer=null;
-function typeWriter(text, speed=40, cb){
-  clearInterval(typeTimer);
-  result.style.display = 'block';
-  result.innerHTML = '';
-  let i=0;
-  typeTimer = setInterval(()=> {
-    result.innerHTML += text.charAt(i);
-    i++;
-    if(i >= text.length){ clearInterval(typeTimer); if(cb) cb(); }
-  }, speed);
-}
-
-/* heart burst (many small hearts) */
-function heartBurst(){
-  for(let i=0;i<45;i++){
-    setTimeout(()=> {
-      const el = document.createElement('div');
-      el.className = 'falling';
-      el.innerText = '💖';
-      el.style.left = rand(20,80) + 'vw';
-      el.style.fontSize = Math.floor(rand(12,28)) + 'px';
-      el.style.animationDuration = rand(2.5,5) + 's';
-      document.body.appendChild(el);
-      setTimeout(()=> el.remove(), 5200);
-    }, i*30);
-  }
-}
-
-/* =========================
-   Music controls: fade in/out, toggle button
-   ========================= */
-musicToggle.addEventListener('click', ()=>{
-  if(bgAudio.paused) {
-    bgAudio.play().catch(()=>{}); // user action allows playback
-    musicToggle.innerText = '🔊 暂停音乐';
-  } else {
-    bgAudio.pause();
-    musicToggle.innerText = '🎵 音乐';
-  }
-});
-
-function fadeInMusic(){
-  try{
-    if(bgAudio.paused){
-      bgAudio.volume = 0;
-      bgAudio.play().catch(()=>{}); // may reject without user gesture on some browsers
-      let v=0;
-      const fade = setInterval(()=> {
-        v = Math.min(0.65, v+0.04);
-        bgAudio.volume = v;
-        if(v >= 0.65) clearInterval(fade);
-      }, 160);
-      musicToggle.innerText = '🔊 暂停音乐';
-    }
-  }catch(e){}
-}
-
-/* =========================
-   Resize handling: adjust star count
-   ========================= */
-window.addEventListener('resize', ()=>{
-  document.querySelectorAll('.star').forEach(s=>s.remove());
-  starCount = Math.max(20, Math.floor(window.innerWidth/28));
-  makeStars();
-});
-
-/* =========================
-   initial small falling & friendly mobile hint
-   ========================= */
-for(let i=0;i<6;i++) setTimeout(spawnFalling, i*220);
-
-// mobile hint
-if('ontouchstart' in window){
-  const tip = document.createElement('div');
-  tip.innerText = '轻触 “喜欢” 或 “不喜欢” 开始 ❤';
-  tip.style.position='fixed';
-  tip.style.left='50%';
-  tip.style.top='12%';
-  tip.style.transform='translateX(-50%)';
-  tip.style.padding='8px 12px';
-  tip.style.background='rgba(0,0,0,0.2)';
-  tip.style.color='#fff';
-  tip.style.borderRadius='12px';
-  tip.style.zIndex='90';
-  tip.style.opacity='0';
-  tip.style.transition='opacity .6s';
-  document.body.appendChild(tip);
-  setTimeout(()=> tip.style.opacity='1', 200);
-  setTimeout(()=> { tip.style.opacity='0'; setTimeout(()=> tip.remove(),600); }, 3500);
-}
-</script>
 </body>
 </html>
