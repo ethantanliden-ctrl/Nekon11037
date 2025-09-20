@@ -1,411 +1,255 @@
 <!DOCTYPE html>
 <html lang="zh">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>给你的小告白</title>
+  <meta charset="UTF-8">
+  <title>浪漫告白</title>
   <style>
-    /* ===== 基本布局 ===== */
-    :root{
-      --accent:#ff4d6d;
-      --bg1:#ff9a9e; /* 粉 */
-      --bg2:#d8b5ff; /* 淡紫 */
-      --bg3:#fff8dc; /* 淡黄 */
-    }
-    *{box-sizing:border-box}
-    html,body{height:100%;margin:0;font-family: "Segoe UI","PingFang SC","Microsoft YaHei",sans-serif}
-    body{
-      overflow:hidden;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      flex-direction:column;
-      text-align:center;
-      background: linear-gradient(-45deg,var(--bg1),var(--bg2),var(--bg3));
-      background-size:400% 400%;
-      animation: bgFlow 18s ease infinite;
-      color:#222;
-    }
-    @keyframes bgFlow{
-      0%{background-position:0% 50%}
-      50%{background-position:100% 50%}
-      100%{background-position:0% 50%}
+    body {
+      margin: 0;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      font-family: "Microsoft YaHei", sans-serif;
+      color: #fff;
+      background: linear-gradient(-45deg, #ff9a9e, #fad0c4, #fbc2eb, #a18cd1);
+      background-size: 400% 400%;
+      animation: gradientBG 10s ease infinite;
     }
 
-    /* ===== 中央心形与标题 ===== */
-    .heart-wrap{z-index:50;position:relative;display:flex;align-items:center;flex-direction:column;padding:20px}
-    /* 2D 心形（CSS） */
-    .heart{
-      width:100px;height:90px;background:var(--accent);position:relative;transform:rotate(-45deg);
-      margin:0 auto 14px; border-radius:6px; animation:beat 1s infinite; box-shadow:0 6px 18px rgba(0,0,0,0.12)
-    }
-    .heart::before,.heart::after{content:"";position:absolute;width:100px;height:90px;background:var(--accent);border-radius:50%}
-    .heart::before{top:-50px;left:0}
-    .heart::after{left:50px;top:0}
-    @keyframes beat{0%,100%{transform:scale(1) rotate(-45deg)}50%{transform:scale(1.18) rotate(-45deg)}}
-
-    h1{margin:6px 0 18px;font-size:1.8rem;color:#fff;text-shadow:0 3px 12px rgba(0,0,0,0.25)}
-
-    /* ===== 按钮区 ===== */
-    .controls{position:relative;z-index:60;display:flex;gap:12px;align-items:center;justify-content:center}
-    .btn{
-      padding:12px 22px;border-radius:28px;border:none;cursor:pointer;font-size:1rem;
-      transition:transform .18s, box-shadow .18s;
-      user-select:none;
-      box-shadow:0 6px 18px rgba(0,0,0,0.12);
-    }
-    .btn:active{transform:scale(.98)}
-    .btn-like{
-      background:var(--accent); color:#fff; box-shadow:0 10px 30px rgba(255,77,109,0.25);
-    }
-    .btn-like:hover{transform:scale(1.08); box-shadow:0 16px 40px rgba(255,77,109,0.34)}
-    .btn-no{
-      background:#fff; color:var(--accent); border:2px solid var(--accent); position:absolute;
+    @keyframes gradientBG {
+      0% {background-position: 0% 50%;}
+      50% {background-position: 100% 50%;}
+      100% {background-position: 0% 50%;}
     }
 
-    /* ===== 信封与结果区 ===== */
-    #envelope{
-      z-index:70; width:220px;height:130px;background:#fff;border-radius:6px; display:none;
-      margin-top:18px; position:relative; cursor:pointer; box-shadow:0 12px 30px rgba(0,0,0,0.18);
+    h1 {
+      font-size: 48px;
+      margin-bottom: 20px;
+      animation: pulse 2s infinite;
     }
-    #envelope::before{
-      content:"";position:absolute;left:0;right:0;margin:auto;top:-64px;width:0;height:0;
-      border-left:110px solid transparent;border-right:110px solid transparent;border-bottom:64px solid #fff;
-      border-radius:2px;
+
+    @keyframes pulse {
+      0%, 100% {transform: scale(1);}
+      50% {transform: scale(1.1);}
     }
-    #result{text-align:center;z-index:70;color:#fff;display:none;margin-top:12px;max-width:86vw;padding:10px 16px;font-size:1.05rem;text-shadow:0 3px 12px rgba(0,0,0,0.22)}
-    #hiddenMsg{display:none;position:fixed;left:50%;transform:translateX(-50%);bottom:22px;z-index:80;background:rgba(0,0,0,0.25);color:#fff;padding:10px 18px;border-radius:20px;font-weight:600}
 
-    /* ===== 星星/萤火虫（小点） ===== */
-    .star{position:fixed;width:3px;height:3px;background:#fff;border-radius:50%;opacity:.8;z-index:10;filter:drop-shadow(0 0 6px rgba(255,255,255,0.65));animation:twinkle linear infinite}
-    @keyframes twinkle{0%{opacity:.1}50%{opacity:1}100%{opacity:.1}}
+    .buttons {
+      display: flex;
+      justify-content: center;
+      gap: 40px;
+      margin-top: 30px;
+    }
 
-    /* ===== 鼠标轨迹（小爱心） ===== */
-    .trail{position:fixed;pointer-events:none;font-size:14px;z-index:65;opacity:0.95;transform:translate(-50%,-50%);transition:transform .12s linear, opacity .4s}
+    button {
+      padding: 12px 28px;
+      font-size: 20px;
+      border: none;
+      border-radius: 25px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
 
-    /* ===== 飘落元素 ===== */
-    .falling{position:fixed;top:-40px;pointer-events:none;z-index:20;animation:fall linear forwards}
-    @keyframes fall{to{transform:translateY(110vh) rotate(360deg);opacity:0}}
+    #yes {
+      background: #ff5fa2;
+      color: white;
+      box-shadow: 0 0 10px rgba(255,95,162,0.6);
+    }
+    #yes:hover {
+      background: #ff2e93;
+    }
 
-    /* ===== 点击波纹 ===== */
-    .ripple{position:fixed;border-radius:50%;background:rgba(255,255,255,.6);transform:scale(0);animation:rip .6s linear;pointer-events:none;z-index:80}
-    @keyframes rip{to{transform:scale(12);opacity:0}}
+    #no {
+      background: #ccc;
+      color: black;
+      box-shadow: 0 0 10px rgba(0,0,0,0.2);
+      position: relative;
+    }
 
-    /* ===== 烟花小点 (点击) ===== */
-    .fw{position:fixed;width:6px;height:6px;border-radius:50%;pointer-events:none;z-index:85}
+    #message, #secret {
+      margin-top: 30px;
+      font-size: 26px;
+      white-space: pre-line;
+      text-align: center;
+      display: none;
+    }
 
-    /* 响应式 */
-    @media (max-width:480px){
-      .heart{width:82px;height:74px}
-      h1{font-size:1.4rem}
-      .btn{font-size:.95rem;padding:10px 18px}
-      #envelope{width:86vw}
-      #result{font-size:1rem}
+    /* 信封样式 */
+    .envelope {
+      width: 280px;
+      height: 180px;
+      background: #fff0f5;
+      border: 2px solid #ff5fa2;
+      position: relative;
+      margin-top: 20px;
+      cursor: pointer;
+      display: none;
+    }
+    .envelope:before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      border-left: 140px solid transparent;
+      border-right: 140px solid transparent;
+      border-bottom: 90px solid #ff5fa2;
+    }
+    .letter {
+      display: none;
+      background: white;
+      width: 250px;
+      height: 150px;
+      padding: 10px;
+      border-radius: 10px;
+      position: absolute;
+      top: -160px;
+      left: 50%;
+      transform: translateX(-50%);
+      box-shadow: 0 0 15px rgba(0,0,0,0.2);
+      color: #333;
+    }
+
+    /* 星星闪烁 */
+    .star {
+      position: absolute;
+      width: 2px;
+      height: 2px;
+      background: white;
+      border-radius: 50%;
+      opacity: 0.8;
+      animation: twinkle 2s infinite;
+    }
+    @keyframes twinkle {
+      0%, 100% { opacity: 0.2; }
+      50% { opacity: 1; }
+    }
+
+    /* 飘落效果 */
+    .fall {
+      position: absolute;
+      top: -50px;
+      font-size: 24px;
+      animation: fall linear forwards;
+    }
+    @keyframes fall {
+      to { transform: translateY(110vh); opacity: 0; }
+    }
+
+    /* 爱心跟随 */
+    .trail {
+      position: absolute;
+      font-size: 16px;
+      pointer-events: none;
+      animation: fadeOut 1s forwards;
+    }
+    @keyframes fadeOut {
+      to { opacity: 0; transform: translateY(-20px); }
     }
   </style>
 </head>
 <body>
-
-  <!-- 层级较低的装饰元素会通过 JS 创建插入 -->
-  <div class="heart-wrap">
-    <div class="heart" aria-hidden="true"></div>
-    <h1>你喜欢我吗？</h1>
-
-    <div class="controls">
-      <button class="btn btn-like" id="likeBtn">喜欢 ❤️</button>
-      <button class="btn btn-no" id="noBtn">不喜欢 😢</button>
+  <h1>❤️ 你喜欢我吗？ ❤️</h1>
+  <div class="buttons">
+    <button id="yes">喜欢 💖</button>
+    <button id="no">不喜欢 😢</button>
+  </div>
+  <div id="message"></div>
+  <div id="secret"></div>
+  <div class="envelope" id="envelope">
+    <div class="letter" id="letter">
+      💌 亲爱的，谢谢你选择了我。  
+      这一刻，我会永远记住。❤️
     </div>
-
-    <div id="envelope" title="点击打开信封"></div>
-    <div id="result" role="status" aria-live="polite"></div>
   </div>
 
-  <div id="hiddenMsg">💛 我会永远爱你 💛</div>
+  <script>
+    const yesBtn = document.getElementById("yes");
+    const noBtn = document.getElementById("no");
+    const message = document.getElementById("message");
+    const secret = document.getElementById("secret");
+    const envelope = document.getElementById("envelope");
+    const letter = document.getElementById("letter");
+    let clickCount = 0;
 
-  <!-- 音乐（可换成你自己的链接）——注意浏览器通常需要用户交互后才能播放 -->
-  <audio id="bgAudio" loop preload="auto">
-    <source src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_6d8b1f88f6.mp3?filename=romantic-piano-melody-9940.mp3" type="audio/mp3">
-    <!-- 若你有合法的《梦中的婚礼》MP3, 可替换上面的 src -->
-  </audio>
+    // 不喜欢按钮逃跑
+    noBtn.addEventListener("mouseover", () => {
+      const x = Math.random() * 200 - 100;
+      const y = Math.random() * 200 - 100;
+      noBtn.style.transform = `translate(${x}px, ${y}px)`;
+    });
+    noBtn.addEventListener("click", () => {
+      alert("不喜欢？^^");
+    });
 
-<script>
-/* =========================
-   初始化变量与元素引用
-   ========================= */
-const likeBtn = document.getElementById('likeBtn');
-const noBtn   = document.getElementById('noBtn');
-const envelope= document.getElementById('envelope');
-const result  = document.getElementById('result');
-const hidden  = document.getElementById('hiddenMsg');
-const bgAudio = document.getElementById('bgAudio');
-
-let likeCount = 0;
-let fallingTimer = null;
-let trailTimeouts = [];
-let starCount = Math.max(24, Math.floor(window.innerWidth/30));
-
-/* =========================
-   1) 创建星星 / 萤火虫
-   ========================= */
-function makeStars(){
-  for(let i=0;i<starCount;i++){
-    const s = document.createElement('div');
-    s.className = 'star';
-    // 分布随机位置
-    const t = Math.random()*100, l = Math.random()*100;
-    s.style.left = l + 'vw';
-    s.style.top  = t + 'vh';
-    // 每颗星闪烁节奏不同
-    const dur = 1.5 + Math.random()*2.5;
-    s.style.animationDuration = dur + 's';
-    s.style.animationDelay = (Math.random()*3) + 's';
-    s.style.opacity = (0.2 + Math.random()*0.9).toFixed(2);
-    document.body.appendChild(s);
-  }
-}
-makeStars();
-
-/* =========================
-   2) 鼠标跟随小爱心轨迹
-   ========================= */
-document.addEventListener('mousemove', e=>{
-  const t = document.createElement('div');
-  t.className = 'trail';
-  t.innerText = '💖';
-  t.style.left = e.pageX + 'px';
-  t.style.top  = e.pageY + 'px';
-  t.style.fontSize = (10 + Math.random()*12) + 'px';
-  document.body.appendChild(t);
-  // 平滑淡出
-  setTimeout(()=>{ t.style.opacity = '0'; }, 350);
-  setTimeout(()=>{ t.remove(); }, 900);
-});
-
-/* =========================
-   3) 点击屏幕出现波纹 & 小烟花
-   ========================= */
-document.addEventListener('click', e=>{
-  // 波纹
-  const r = document.createElement('div');
-  r.className = 'ripple';
-  const size = Math.max(window.innerWidth, window.innerHeight) * 0.06;
-  r.style.width = r.style.height = size + 'px';
-  r.style.left = (e.clientX - size/2) + 'px';
-  r.style.top  = (e.clientY - size/2) + 'px';
-  document.body.appendChild(r);
-  setTimeout(()=>r.remove(), 650);
-
-  // 小烟花爆点
-  for(let i=0;i<10;i++){
-    const p = document.createElement('div');
-    p.className = 'fw';
-    const hue = Math.floor(Math.random()*360);
-    p.style.background = `hsl(${hue} 100% 60%)`;
-    p.style.left = e.clientX + 'px';
-    p.style.top  = e.clientY + 'px';
-    // 方向与速度
-    const angle = Math.random()*Math.PI*2;
-    const dist  = 40 + Math.random()*120;
-    const tx = Math.cos(angle)*dist;
-    const ty = Math.sin(angle)*dist;
-    p.style.transform = `translate(0,0)`;
-    p.style.transition = 'transform 700ms cubic-bezier(.2,.7,0,1), opacity 700ms';
-    document.body.appendChild(p);
-    setTimeout(()=>{ p.style.transform = `translate(${tx}px,${ty}px)`; p.style.opacity='0'; }, 20);
-    setTimeout(()=>{ p.remove(); }, 800);
-  }
-});
-
-/* =========================
-   4) “不喜欢”按钮：逃跑 + 显示“不喜欢？^^”
-   ========================= */
-const noMessage = (() => {
-  const el = document.createElement('div');
-  el.style.position='fixed';
-  el.style.left='50%';
-  el.style.transform='translateX(-50%)';
-  el.style.top='62%';
-  el.style.zIndex='72';
-  el.style.color='#fff';
-  el.style.fontSize='1.05rem';
-  el.style.opacity='0';
-  el.style.transition='opacity .6s';
-  el.style.textShadow='0 3px 10px rgba(0,0,0,.4)';
-  el.innerText = '不喜欢？^^';
-  document.body.appendChild(el);
-  return el;
-})();
-
-noBtn.addEventListener('mouseover', ()=>{ moveNoBtn(); showNoMsg(); });
-noBtn.addEventListener('touchstart', ()=>{ moveNoBtn(); showNoMsg(); });
-
-function moveNoBtn(){
-  // 目标远离鼠标指针（尝试多次避免卡位）
-  const pad = 70;
-  const w = noBtn.offsetWidth, h = noBtn.offsetHeight;
-  let tries = 0;
-  let placed = false;
-  while(!placed && tries < 10){
-    const nx = Math.random()*(window.innerWidth - w - pad*2) + pad;
-    const ny = Math.random()*(window.innerHeight - h - pad*2) + pad;
-    // 不放在视窗中心太近
-    const centerDist = Math.hypot(nx - window.innerWidth/2, ny - window.innerHeight/2);
-    if(centerDist > 60 || Math.random()>0.4){
-      noBtn.style.left = nx + 'px';
-      noBtn.style.top  = ny + 'px';
-      placed = true;
+    // 打字机效果
+    function typeWriter(text, element, callback) {
+      element.style.display = "block";
+      let i = 0;
+      function typing() {
+        if (i < text.length) {
+          element.innerHTML += text.charAt(i);
+          i++;
+          setTimeout(typing, 100);
+        } else if (callback) {
+          callback();
+        }
+      }
+      typing();
     }
-    tries++;
-  }
-  // 快速抖动效果
-  noBtn.animate([{transform:'translateX(-2px)'},{transform:'translateX(2px)'},{transform:'translateX(0)'}],{duration:260,iterations:1});
-}
 
-let noMsgTimer = null;
-function showNoMsg(){
-  noMessage.style.opacity = '1';
-  if(noMsgTimer) clearTimeout(noMsgTimer);
-  noMsgTimer = setTimeout(()=>{ noMessage.style.opacity='0'; }, 2000);
-}
+    yesBtn.addEventListener("click", () => {
+      clickCount++;
+      message.innerHTML = "";
+      typeWriter("谢谢你 💖\n我喜欢你！", message, () => {
+        envelope.style.display = "block";
+      });
 
-/* =========================
-   5) 飘落元素：心/樱花/气球/玫瑰
-   ========================= */
-function spawnFalling(){
-  const types = ['💖','🌸','🎈','🌹'];
-  const el = document.createElement('div');
-  el.className = 'falling';
-  el.style.left = Math.random()*100 + 'vw';
-  el.style.fontSize = (14 + Math.random()*26) + 'px';
-  el.style.zIndex = 20 + Math.floor(Math.random()*10);
-  el.innerText = types[Math.floor(Math.random()*types.length)];
-  const dur = 5 + Math.random()*6;
-  el.style.animationDuration = dur + 's';
-  document.body.appendChild(el);
-  setTimeout(()=>el.remove(), (dur*1000) + 200);
-}
+      if (clickCount === 3) {
+        setTimeout(() => {
+          secret.style.display = "block";
+          typeWriter("🎉 彩蛋：我会永远爱你！❤️", secret);
+        }, 2000);
+      }
+    });
 
-/* =========================
-   6) 喜欢按钮逻辑：信封 → 打字机 → 多段文字 → 隐藏彩蛋
-   ========================= */
-likeBtn.addEventListener('click', ()=>{ handleLike(); });
+    envelope.addEventListener("click", () => {
+      letter.style.display = "block";
+    });
 
-function handleLike(){
-  likeCount++;
-  // 第一次：显示信封（并开始慢速飘落）
-  if(likeCount === 1){
-    envelope.style.display='block';
-    // 开启小型持续飘落
-    if(!fallingTimer) fallingTimer = setInterval(spawnFalling, 600);
-    // 尝试淡入音乐（多数浏览器需要用户交互）
-    fadeInMusic();
-  }
-  // 第三次：显示隐藏彩蛋（底部）
-  if(likeCount === 3){
-    showHidden();
-  }
-  // 连续多次（例如5次）可以加入额外动画（此处保留可扩展）
-}
-
-/* ===== 打开信封并开始逐字显示（打字机） ===== */
-envelope.addEventListener('click', openEnvelope);
-function openEnvelope(){
-  envelope.style.display = 'none';
-  // 逐字显示第一段 -> 再延迟显示第二段
-  typeWriter("💌 你好呀，我有件事鼓起勇气想告诉你……", 40, ()=>{
-    setTimeout(()=>{
-      typeWriter("我喜欢你。不是一时的喜欢，而是想和你一起走过很多个明天。愿意和我在一起吗？", 32);
-    }, 700);
-  });
-}
-
-/* ===== 打字机函数：逐字输出到 #result ===== */
-let typeInterval = null;
-function typeWriter(text, speed=50, callback){
-  clearInterval(typeInterval);
-  result.style.display = 'block';
-  result.innerHTML = '';
-  let i=0;
-  typeInterval = setInterval(()=>{
-    result.innerHTML += text.charAt(i);
-    i++;
-    if(i >= text.length){
-      clearInterval(typeInterval);
-      if(callback) callback();
+    // 背景星星
+    for (let i = 0; i < 50; i++) {
+      const star = document.createElement("div");
+      star.className = "star";
+      star.style.top = Math.random() * 100 + "vh";
+      star.style.left = Math.random() * 100 + "vw";
+      star.style.animationDuration = (Math.random() * 3 + 2) + "s";
+      document.body.appendChild(star);
     }
-  }, speed);
-}
 
-/* =========================
-   7) 隐藏彩蛋出现（淡入底部文字）
-   ========================= */
-function showHidden(){
-  hidden.style.display = 'block';
-  hidden.style.opacity = '0';
-  hidden.style.transition = 'opacity 1.6s ease, transform 1.6s';
-  hidden.style.transform = 'translateY(18px)';
-  setTimeout(()=>{ hidden.style.opacity='1'; hidden.style.transform='translateY(0)'; }, 80);
-}
-
-/* =========================
-   8) 音乐淡入（用户交互触发）
-   ========================= */
-function fadeInMusic(){
-  // 如果已经在播放则不重复
-  try{
-    if(bgAudio.paused){
-      bgAudio.volume = 0;
-      bgAudio.play().catch(()=>{}); // 某些浏览器需要明确用户交互
-      let v = 0;
-      const fade = setInterval(()=>{
-        v += 0.04;
-        bgAudio.volume = Math.min(0.6, v);
-        if(v >= 0.6) clearInterval(fade);
-      }, 160);
+    // 飘落效果
+    function createFall() {
+      const fall = document.createElement("div");
+      fall.className = "fall";
+      fall.innerText = Math.random() > 0.5 ? "🌸" : "🎈";
+      fall.style.left = Math.random() * 100 + "vw";
+      fall.style.animationDuration = (Math.random() * 3 + 5) + "s";
+      document.body.appendChild(fall);
+      setTimeout(() => fall.remove(), 8000);
     }
-  }catch(e){}
-}
+    setInterval(createFall, 800);
 
-/* =========================
-   9) 安全：窗口大小变化时调整星星数量 & 清理
-   ========================= */
-window.addEventListener('resize', ()=>{
-  // 简单重建星星（不做复杂 diff）
-  document.querySelectorAll('.star').forEach(e=>e.remove());
-  starCount = Math.max(20, Math.floor(window.innerWidth/30));
-  makeStars();
-});
-
-/* =========================
-   10) 页面初始小提示：轻触交互（移动端）
-   ========================= */
-(function mobileHint(){
-  if('ontouchstart' in window){
-    // 在小范围内短暂显示一个提示
-    const tip = document.createElement('div');
-    tip.innerText = '轻触按钮以开始 ❤️';
-    tip.style.position='fixed';
-    tip.style.left='50%';
-    tip.style.top='18%';
-    tip.style.transform='translateX(-50%)';
-    tip.style.padding='8px 14px';
-    tip.style.background='rgba(0,0,0,0.2)';
-    tip.style.color='#fff';
-    tip.style.borderRadius='14px';
-    tip.style.zIndex=90;
-    tip.style.opacity='0';
-    tip.style.transition='opacity .8s';
-    document.body.appendChild(tip);
-    setTimeout(()=>{ tip.style.opacity='1'; }, 300);
-    setTimeout(()=>{ tip.style.opacity='0'; setTimeout(()=>tip.remove(),600); }, 3000);
-  }
-})();
-
-/* =========================
-   11) 启动时先产生一些飘落和星星视觉（增加即刻感）
-   ========================= */
-for(let i=0;i<8;i++){ setTimeout(spawnFalling, i*250); }
-
-</script>
+    // 爱心轨迹
+    document.addEventListener("mousemove", (e) => {
+      const heart = document.createElement("div");
+      heart.className = "trail";
+      heart.innerText = "❤️";
+      heart.style.left = e.pageX + "px";
+      heart.style.top = e.pageY + "px";
+      document.body.appendChild(heart);
+      setTimeout(() => heart.remove(), 1000);
+    });
+  </script>
 </body>
 </html>
