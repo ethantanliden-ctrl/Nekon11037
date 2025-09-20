@@ -2,240 +2,187 @@
 <html lang="zh">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>告白</title>
+  <title>告白小网站</title>
   <style>
     body {
-      margin: 0;
-      height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      flex-direction: column;
-      font-family: "Segoe UI", "PingFang SC", sans-serif;
-      overflow: hidden;
+      background-color: #fff8dc;
+      font-family: "Microsoft YaHei", sans-serif;
       text-align: center;
-      background: linear-gradient(-45deg, #ff9a9e, #fad0c4, #fad390, #d8b5ff);
-      background-size: 400% 400%;
-      animation: gradientBG 12s ease infinite;
+      overflow: hidden;
+      transition: background 2s;
     }
-    @keyframes gradientBG {
-      0% {background-position: 0% 50%;}
-      50% {background-position: 100% 50%;}
-      100% {background-position: 0% 50%;}
-    }
-    /* 星星闪烁 */
-    .star {
-      position: fixed;
-      width: 2px;
-      height: 2px;
-      background: white;
-      border-radius: 50%;
-      animation: twinkle 2s infinite alternate;
-    }
-    @keyframes twinkle {
-      from {opacity: 0.2;}
-      to {opacity: 1;}
-    }
-    /* 心形 */
+
     .heart {
-      position: relative;
-      width: 100px;
-      height: 90px;
-      background: #ff4d6d;
-      margin-bottom: 20px;
-      transform: rotate(-45deg);
+      font-size: 120px;
+      color: #ff4d6d;
       animation: beat 1s infinite;
+      margin-top: 100px;
     }
-    .heart::before,
-    .heart::after {
-      content: "";
-      position: absolute;
-      width: 100px;
-      height: 90px;
-      background: #ff4d6d;
-      border-radius: 50%;
-    }
-    .heart::before { top: -50px; left: 0; }
-    .heart::after { left: 50px; top: 0; }
+
     @keyframes beat {
-      0%,100% {transform: scale(1) rotate(-45deg);}
-      50% {transform: scale(1.2) rotate(-45deg);}
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.2); }
     }
-    h1 { font-size: 2em; margin-bottom: 30px; color: #fff; text-shadow: 1px 1px 3px #000; }
-    .btn {
-      padding: 12px 28px;
-      font-size: 1.2em;
+
+    .question {
+      font-size: 28px;
+      margin: 20px 0;
+      color: #333;
+    }
+
+    .buttons {
+      margin-top: 40px;
+      position: relative;
+    }
+
+    button {
+      padding: 12px 25px;
+      font-size: 18px;
       border: none;
-      border-radius: 25px;
+      border-radius: 10px;
       cursor: pointer;
-      margin: 10px;
-      transition: transform 0.2s;
-      position: relative;
+      transition: 0.3s;
     }
-    .yes { background: #ff4d6d; color: #fff; }
-    .no { background: #fff; color: #ff4d6d; border: 2px solid #ff4d6d; position: absolute; }
-    .btn:hover { transform: scale(1.1); }
-    #envelope {
-      width: 200px;
-      height: 120px;
-      background: #fff;
-      position: relative;
-      margin-top: 20px;
-      display: none;
-      cursor: pointer;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+
+    #yesBtn {
+      background-color: #ff4d6d;
+      color: white;
     }
-    #envelope::before {
-      content:"";
-      position:absolute;
-      top:-60px;
-      left:0;
-      border-left:100px solid transparent;
-      border-right:100px solid transparent;
-      border-bottom:60px solid #fff;
+
+    #noBtn {
+      background-color: #ccc;
+      margin-left: 20px;
+      position: absolute;
     }
-    #result {
+
+    .message {
+      font-size: 24px;
+      color: #ff4d6d;
       margin-top: 30px;
-      font-size: 1.5em;
-      color: #fff;
       display: none;
-      text-shadow: 1px 1px 3px #000;
     }
-    .falling {
-      position: fixed;
-      top: -20px;
-      animation: fall linear forwards;
-      pointer-events: none;
-    }
-    @keyframes fall {
-      to { transform: translateY(110vh) rotate(360deg); opacity:0; }
-    }
-    .trail {
-      position: fixed;
-      pointer-events: none;
-      animation: fadeOut 1s forwards;
-    }
-    @keyframes fadeOut {
-      to {opacity: 0; transform: scale(0);}
-    }
-    #hidden {
-      display: none;
+
+    /* “不喜欢？^^” 的提示 */
+    .no-message {
+      font-size: 22px;
+      color: #888;
       margin-top: 20px;
-      font-size: 1.2em;
-      color: yellow;
-      text-shadow: 1px 1px 4px #000;
+      opacity: 0;
+      transition: opacity 1s;
+    }
+
+    /* 彩带效果 */
+    .confetti {
+      position: fixed;
+      width: 10px;
+      height: 10px;
+      background: red;
+      top: -10px;
+      animation: fall 3s linear forwards;
+    }
+
+    @keyframes fall {
+      to {
+        transform: translateY(100vh) rotate(720deg);
+        opacity: 0;
+      }
+    }
+
+    /* 飘落爱心 */
+    .floating-heart {
+      position: fixed;
+      font-size: 24px;
+      color: #ff4d6d;
+      top: -30px;
+      animation: drop 5s linear forwards;
+      pointer-events: none;
+    }
+
+    @keyframes drop {
+      to {
+        transform: translateY(100vh);
+        opacity: 0;
+      }
     }
   </style>
 </head>
 <body>
-
-  <div class="heart"></div>
-  <h1>你喜欢我吗？</h1>
-
-  <div>
-    <button class="btn yes" onclick="reply(true)">喜欢 ❤️</button>
-    <button class="btn no" id="noBtn" onclick="reply(false)">不喜欢 😢</button>
+  <div class="heart">❤</div>
+  <div class="question">你喜欢我吗？</div>
+  <div class="buttons">
+    <button id="yesBtn">喜欢</button>
+    <button id="noBtn">不喜欢</button>
   </div>
+  <div class="message" id="loveMessage">我也喜欢你！💖 一起走下去吧！</div>
+  <div class="no-message" id="noMessage">不喜欢？^^</div>
 
-  <div id="envelope" onclick="openLetter()"></div>
-  <div id="result"></div>
-  <div id="hidden">💛 我会永远爱你 💛</div>
+  <audio id="bgMusic" loop>
+    <source src="https://www.bensound.com/bensound-music/bensound-romantic.mp3" type="audio/mpeg">
+  </audio>
 
-<script>
-const noBtn = document.getElementById("noBtn");
-let result = document.getElementById("result");
-let envelope = document.getElementById("envelope");
-let hiddenMsg = document.getElementById("hidden");
-let likeCount = 0;
+  <script>
+    const noBtn = document.getElementById("noBtn");
+    const yesBtn = document.getElementById("yesBtn");
+    const loveMessage = document.getElementById("loveMessage");
+    const noMessage = document.getElementById("noMessage");
+    const bgMusic = document.getElementById("bgMusic");
 
-// 不喜欢按钮逃跑
-document.addEventListener("mousemove", (e) => {
-  const rect = noBtn.getBoundingClientRect();
-  const distance = Math.hypot(
-    e.clientX - (rect.left + rect.width/2),
-    e.clientY - (rect.top + rect.height/2)
-  );
-  if(distance < 100){
-    const offsetX = (rect.left - e.clientX) * 2;
-    const offsetY = (rect.top - e.clientY) * 2;
-    let newX = rect.left + offsetX;
-    let newY = rect.top + offsetY;
-    newX = Math.min(window.innerWidth - rect.width, Math.max(0, newX));
-    newY = Math.min(window.innerHeight - rect.height, Math.max(0, newY));
-    noBtn.style.left = newX + "px";
-    noBtn.style.top = newY + "px";
-  }
-});
+    // “不喜欢”按钮移动
+    noBtn.addEventListener("mouseover", () => {
+      let x = Math.random() * (window.innerWidth - noBtn.offsetWidth);
+      let y = Math.random() * (window.innerHeight - noBtn.offsetHeight - 100) + 100;
+      noBtn.style.left = `${x}px`;
+      noBtn.style.top = `${y}px`;
 
-// 点喜欢
-function reply(answer){
-  if(answer){
-    likeCount++;
-    if(likeCount === 1){
-      envelope.style.display = "block";
-      startFall();
+      // 显示“不喜欢？^^”
+      noMessage.style.opacity = 1;
+      setTimeout(() => {
+        noMessage.style.opacity = 0;
+      }, 2000);
+    });
+
+    // “喜欢”按钮
+    yesBtn.addEventListener("click", () => {
+      loveMessage.style.display = "block";
+      bgMusic.play();
+
+      // 背景渐变
+      document.body.style.background = "linear-gradient(135deg, #ffdde1, #ee9ca7)";
+
+      // 彩带
+      createConfetti();
+
+      // 飘落爱心
+      setInterval(createFloatingHeart, 500);
+    });
+
+    // 彩带
+    function createConfetti() {
+      for (let i = 0; i < 50; i++) {
+        const confetti = document.createElement("div");
+        confetti.classList.add("confetti");
+        confetti.style.left = Math.random() * window.innerWidth + "px";
+        confetti.style.backgroundColor = randomColor();
+        document.body.appendChild(confetti);
+        setTimeout(() => confetti.remove(), 3000);
+      }
     }
-    if(likeCount === 3){
-      hiddenMsg.style.display = "block";
+
+    // 随机颜色
+    function randomColor() {
+      const colors = ["#ff4d6d", "#ffcc00", "#66ccff", "#99ff66", "#ff9966"];
+      return colors[Math.floor(Math.random() * colors.length)];
     }
-  }
-}
 
-// 打开发信封 → 打字机效果显示文字
-function openLetter(){
-  envelope.style.display = "none";
-  typeText("耶！我就知道你会喜欢我 💖 从现在开始，我们就是彼此的唯一啦~ 🥰");
-}
-
-// 打字机效果
-function typeText(text){
-  let i = 0;
-  result.style.display = "block";
-  result.innerHTML = "";
-  let interval = setInterval(()=>{
-    result.innerHTML += text.charAt(i);
-    i++;
-    if(i >= text.length) clearInterval(interval);
-  },100);
-}
-
-// 飘落效果（樱花+爱心）
-function startFall(){
-  setInterval(() => {
-    const el = document.createElement("div");
-    el.className = "falling";
-    el.innerText = Math.random() > 0.5 ? "🌸" : "💖";
-    el.style.left = Math.random() * 100 + "vw";
-    el.style.fontSize = (Math.random()*20+15) + "px";
-    el.style.animationDuration = (Math.random()*4+4) + "s";
-    document.body.appendChild(el);
-    setTimeout(()=>el.remove(),6000);
-  }, 400);
-}
-
-// 星星
-for(let i=0;i<50;i++){
-  const star=document.createElement("div");
-  star.className="star";
-  star.style.top=Math.random()*100+"vh";
-  star.style.left=Math.random()*100+"vw";
-  star.style.animationDuration=(Math.random()*2+1)+"s";
-  document.body.appendChild(star);
-}
-
-// 鼠标跟随爱心轨迹
-document.addEventListener("mousemove",(e)=>{
-  const heart=document.createElement("div");
-  heart.className="trail";
-  heart.innerText="💖";
-  heart.style.left=e.pageX+"px";
-  heart.style.top=e.pageY+"px";
-  heart.style.fontSize="16px";
-  document.body.appendChild(heart);
-  setTimeout(()=>heart.remove(),1000);
-});
-</script>
-
+    // 飘落爱心
+    function createFloatingHeart() {
+      const heart = document.createElement("div");
+      heart.classList.add("floating-heart");
+      heart.textContent = "❤";
+      heart.style.left = Math.random() * window.innerWidth + "px";
+      document.body.appendChild(heart);
+      setTimeout(() => heart.remove(), 5000);
+    }
+  </script>
 </body>
 </html>
