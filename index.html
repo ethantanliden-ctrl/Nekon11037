@@ -1,87 +1,83 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="zh">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>告白选择器</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>给你的告白</title>
   <style>
-    body { font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans", "PingFang SC", "Hiragino Sans GB"; padding:20px; max-width:720px; margin:auto; }
-    h1 { text-align:center }
-    .row { display:flex; gap:8px; margin-bottom:12px; flex-wrap:wrap; }
-    button.choice { padding:10px 14px; border-radius:10px; border:1px solid #ccc; background:#fff; cursor:pointer; flex:1 0 30%; min-width:120px; }
-    button.choice.selected { border-color:#2b8; box-shadow:0 4px 12px rgba(0,0,0,0.08); }
-    #result { margin-top:18px; padding:14px; border-radius:10px; background:#f7f7f8; white-space:pre-wrap; }
+    body {
+      font-family: "Segoe UI", "PingFang SC", sans-serif;
+      text-align: center;
+      background: linear-gradient(135deg, #ff9a9e, #fad0c4);
+      height: 100vh;
+      margin: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+    }
+    h1 {
+      font-size: 2.2em;
+      color: #fff;
+      margin-bottom: 20px;
+      animation: fadeIn 2s ease;
+    }
+    p {
+      font-size: 1.2em;
+      color: #fff;
+      margin-bottom: 30px;
+      animation: fadeIn 3s ease;
+    }
+    .btn {
+      padding: 12px 24px;
+      font-size: 1.1em;
+      border: none;
+      border-radius: 25px;
+      cursor: pointer;
+      margin: 10px;
+      transition: transform 0.2s;
+    }
+    .yes { background: #ff4d6d; color: white; }
+    .no { background: #fff; color: #ff4d6d; }
+    .btn:hover { transform: scale(1.1); }
+    #result {
+      margin-top: 30px;
+      font-size: 1.5em;
+      color: #fff;
+      display: none;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
   </style>
 </head>
 <body>
-  <h1>告白选择器</h1>
+
+  <h1>嗨 👋</h1>
+  <p>其实我有一件事想告诉你...</p>
+
+  <p><strong>我喜欢你 ❤️</strong></p>
 
   <div>
-    <strong>开场</strong>
-    <div class="row" id="greeting"></div>
+    <button class="btn yes" onclick="reply(true)">答应我</button>
+    <button class="btn no" onclick="reply(false)">再考虑一下</button>
   </div>
 
-  <div>
-    <strong>风格</strong>
-    <div class="row" id="style"></div>
-  </div>
-
-  <div>
-    <strong>场合</strong>
-    <div class="row" id="risk"></div>
-  </div>
-
-  <div style="text-align:center; margin-top:12px;">
-    <button id="generate">生成告白句</button>
-  </div>
-
-  <div id="result" hidden></div>
+  <div id="result"></div>
 
 <script>
-const greetings = ["随意、轻松","正式、认真的","幽默、撒娇"];
-const styles = ["直接表达喜欢","用比喻/诗意","先约会再告白"];
-const risks = ["高调（当众）","私密（单独）","模糊（看气氛）"];
-
-function makeChoices(containerId, arr){
-  const container = document.getElementById(containerId);
-  arr.forEach((text,i)=>{
-    const btn = document.createElement('button');
-    btn.className = 'choice';
-    btn.innerText = text;
-    btn.dataset.idx = i;
-    btn.onclick = () => {
-      // 切换选择样式（单选）
-      Array.from(container.children).forEach(c=>c.classList.remove('selected'));
-      btn.classList.add('selected');
-    };
-    container.appendChild(btn);
-  });
-}
-
-makeChoices('greeting', greetings);
-makeChoices('style', styles);
-makeChoices('risk', risks);
-
-document.getElementById('generate').onclick = () => {
-  const g = document.querySelector('#greeting .selected');
-  const s = document.querySelector('#style .selected');
-  const r = document.querySelector('#risk .selected');
-  if(!g || !s || !r){
-    alert('请先在每一项选择一个选项。');
-    return;
+function reply(answer){
+  const result = document.getElementById("result");
+  if(answer){
+    result.innerHTML = "太好了！🎉 从现在开始，你就是我的唯一 ❤️";
+  } else {
+    result.innerHTML = "没关系，我会一直等你 😊";
   }
-  const key = `${g.dataset.idx}-${s.dataset.idx}-${r.dataset.idx}`;
-  const map = {
-    "0-0-0": "嘿，其实和你在一起很舒服。我想告诉你：我喜欢你。要不要和我一起去喝杯东西？",
-    "1-1-1": "我想认真地说一句话：我喜欢你。我希望能和你有机会走得更近。",
-    "2-2-0": "我喜欢你，就像我喜欢把所有好东西分享给朋友——现在想把你分享给未来的每一天，愿意吗？",
-    "0-2-1": "我想慢慢来，但我也想先告诉你：我对你有好感，想单独和你约会，先从一次见面开始好吗？"
-  };
-  const result = map[key] || `我想对你说：我喜欢你。${r.innerText.includes('当众') ? '现在就想在这里说出来。' : '能不能找个时间，我想当面跟你说。'}`;
-  const box = document.getElementById('result');
-  box.hidden = false;
-  box.innerText = result;
-};
+  result.style.display = "block";
+}
 </script>
+
 </body>
 </html>
+
