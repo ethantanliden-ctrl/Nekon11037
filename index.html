@@ -211,4 +211,201 @@ document.addEventListener('click', e=>{
     p.style.transform = `translate(0,0)`;
     p.style.transition = 'transform 700ms cubic-bezier(.2,.7,0,1), opacity 700ms';
     document.body.appendChild(p);
-    setTi
+    setTimeout(()=>{ p.style.transform = `translate(${tx}px,${ty}px)`; p.style.opacity='0'; }, 20);
+    setTimeout(()=>{ p.remove(); }, 800);
+  }
+});
+
+/* =========================
+   4) “不喜欢”按钮：逃跑 + 显示“不喜欢？^^”
+   ========================= */
+const noMessage = (() => {
+  const el = document.createElement('div');
+  el.style.position='fixed';
+  el.style.left='50%';
+  el.style.transform='translateX(-50%)';
+  el.style.top='62%';
+  el.style.zIndex='72';
+  el.style.color='#fff';
+  el.style.fontSize='1.05rem';
+  el.style.opacity='0';
+  el.style.transition='opacity .6s';
+  el.style.textShadow='0 3px 10px rgba(0,0,0,.4)';
+  el.innerText = '不喜欢？^^';
+  document.body.appendChild(el);
+  return el;
+})();
+
+noBtn.addEventListener('mouseover', ()=>{ moveNoBtn(); showNoMsg(); });
+noBtn.addEventListener('touchstart', ()=>{ moveNoBtn(); showNoMsg(); });
+
+function moveNoBtn(){
+  // 目标远离鼠标指针（尝试多次避免卡位）
+  const pad = 70;
+  const w = noBtn.offsetWidth, h = noBtn.offsetHeight;
+  let tries = 0;
+  let placed = false;
+  while(!placed && tries < 10){
+    const nx = Math.random()*(window.innerWidth - w - pad*2) + pad;
+    const ny = Math.random()*(window.innerHeight - h - pad*2) + pad;
+    // 不放在视窗中心太近
+    const centerDist = Math.hypot(nx - window.innerWidth/2, ny - window.innerHeight/2);
+    if(centerDist > 60 || Math.random()>0.4){
+      noBtn.style.left = nx + 'px';
+      noBtn.style.top  = ny + 'px';
+      placed = true;
+    }
+    tries++;
+  }
+  // 快速抖动效果
+  noBtn.animate([{transform:'translateX(-2px)'},{transform:'translateX(2px)'},{transform:'translateX(0)'}],{duration:260,iterations:1});
+}
+
+let noMsgTimer = null;
+function showNoMsg(){
+  noMessage.style.opacity = '1';
+  if(noMsgTimer) clearTimeout(noMsgTimer);
+  noMsgTimer = setTimeout(()=>{ noMessage.style.opacity='0'; }, 2000);
+}
+
+/* =========================
+   5) 飘落元素：心/樱花/气球/玫瑰
+   ========================= */
+function spawnFalling(){
+  const types = ['💖','🌸','🎈','🌹'];
+  const el = document.createElement('div');
+  el.className = 'falling';
+  el.style.left = Math.random()*100 + 'vw';
+  el.style.fontSize = (14 + Math.random()*26) + 'px';
+  el.style.zIndex = 20 + Math.floor(Math.random()*10);
+  el.innerText = types[Math.floor(Math.random()*types.length)];
+  const dur = 5 + Math.random()*6;
+  el.style.animationDuration = dur + 's';
+  document.body.appendChild(el);
+  setTimeout(()=>el.remove(), (dur*1000) + 200);
+}
+
+/* =========================
+   6) 喜欢按钮逻辑：信封 → 打字机 → 多段文字 → 隐藏彩蛋
+   ========================= */
+likeBtn.addEventListener('click', ()=>{ handleLike(); });
+
+function handleLike(){
+  likeCount++;
+  // 第一次：显示信封（并开始慢速飘落）
+  if(likeCount === 1){
+    envelope.style.display='block';
+    // 开启小型持续飘落
+    if(!fallingTimer) fallingTimer = setInterval(spawnFalling, 600);
+    // 尝试淡入音乐（多数浏览器需要用户交互）
+    fadeInMusic();
+  }
+  // 第三次：显示隐藏彩蛋（底部）
+  if(likeCount === 3){
+    showHidden();
+  }
+  // 连续多次（例如5次）可以加入额外动画（此处保留可扩展）
+}
+
+/* ===== 打开信封并开始逐字显示（打字机） ===== */
+envelope.addEventListener('click', openEnvelope);
+function openEnvelope(){
+  envelope.style.display = 'none';
+  // 逐字显示第一段 -> 再延迟显示第二段
+  typeWriter("💌 你好呀，我有件事鼓起勇气想告诉你……", 40, ()=>{
+    setTimeout(()=>{
+      typeWriter("我喜欢你。不是一时的喜欢，而是想和你一起走过很多个明天。愿意和我在一起吗？", 32);
+    }, 700);
+  });
+}
+
+/* ===== 打字机函数：逐字输出到 #result ===== */
+let typeInterval = null;
+function typeWriter(text, speed=50, callback){
+  clearInterval(typeInterval);
+  result.style.display = 'block';
+  result.innerHTML = '';
+  let i=0;
+  typeInterval = setInterval(()=>{
+    result.innerHTML += text.charAt(i);
+    i++;
+    if(i >= text.length){
+      clearInterval(typeInterval);
+      if(callback) callback();
+    }
+  }, speed);
+}
+
+/* =========================
+   7) 隐藏彩蛋出现（淡入底部文字）
+   ========================= */
+function showHidden(){
+  hidden.style.display = 'block';
+  hidden.style.opacity = '0';
+  hidden.style.transition = 'opacity 1.6s ease, transform 1.6s';
+  hidden.style.transform = 'translateY(18px)';
+  setTimeout(()=>{ hidden.style.opacity='1'; hidden.style.transform='translateY(0)'; }, 80);
+}
+
+/* =========================
+   8) 音乐淡入（用户交互触发）
+   ========================= */
+function fadeInMusic(){
+  // 如果已经在播放则不重复
+  try{
+    if(bgAudio.paused){
+      bgAudio.volume = 0;
+      bgAudio.play().catch(()=>{}); // 某些浏览器需要明确用户交互
+      let v = 0;
+      const fade = setInterval(()=>{
+        v += 0.04;
+        bgAudio.volume = Math.min(0.6, v);
+        if(v >= 0.6) clearInterval(fade);
+      }, 160);
+    }
+  }catch(e){}
+}
+
+/* =========================
+   9) 安全：窗口大小变化时调整星星数量 & 清理
+   ========================= */
+window.addEventListener('resize', ()=>{
+  // 简单重建星星（不做复杂 diff）
+  document.querySelectorAll('.star').forEach(e=>e.remove());
+  starCount = Math.max(20, Math.floor(window.innerWidth/30));
+  makeStars();
+});
+
+/* =========================
+   10) 页面初始小提示：轻触交互（移动端）
+   ========================= */
+(function mobileHint(){
+  if('ontouchstart' in window){
+    // 在小范围内短暂显示一个提示
+    const tip = document.createElement('div');
+    tip.innerText = '轻触按钮以开始 ❤️';
+    tip.style.position='fixed';
+    tip.style.left='50%';
+    tip.style.top='18%';
+    tip.style.transform='translateX(-50%)';
+    tip.style.padding='8px 14px';
+    tip.style.background='rgba(0,0,0,0.2)';
+    tip.style.color='#fff';
+    tip.style.borderRadius='14px';
+    tip.style.zIndex=90;
+    tip.style.opacity='0';
+    tip.style.transition='opacity .8s';
+    document.body.appendChild(tip);
+    setTimeout(()=>{ tip.style.opacity='1'; }, 300);
+    setTimeout(()=>{ tip.style.opacity='0'; setTimeout(()=>tip.remove(),600); }, 3000);
+  }
+})();
+
+/* =========================
+   11) 启动时先产生一些飘落和星星视觉（增加即刻感）
+   ========================= */
+for(let i=0;i<8;i++){ setTimeout(spawnFalling, i*250); }
+
+</script>
+</body>
+</html>
