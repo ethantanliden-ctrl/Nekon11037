@@ -1,188 +1,214 @@
 <!DOCTYPE html>
 <html lang="zh">
 <head>
-  <meta charset="UTF-8">
-  <title>告白小网站</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>给你的小告白</title>
   <style>
-    body {
-      background-color: #fff8dc;
-      font-family: "Microsoft YaHei", sans-serif;
-      text-align: center;
-      overflow: hidden;
-      transition: background 2s;
+    /* ===== 基本布局 ===== */
+    :root{
+      --accent:#ff4d6d;
+      --bg1:#ff9a9e; /* 粉 */
+      --bg2:#d8b5ff; /* 淡紫 */
+      --bg3:#fff8dc; /* 淡黄 */
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%;margin:0;font-family: "Segoe UI","PingFang SC","Microsoft YaHei",sans-serif}
+    body{
+      overflow:hidden;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      flex-direction:column;
+      text-align:center;
+      background: linear-gradient(-45deg,var(--bg1),var(--bg2),var(--bg3));
+      background-size:400% 400%;
+      animation: bgFlow 18s ease infinite;
+      color:#222;
+    }
+    @keyframes bgFlow{
+      0%{background-position:0% 50%}
+      50%{background-position:100% 50%}
+      100%{background-position:0% 50%}
     }
 
-    .heart {
-      font-size: 120px;
-      color: #ff4d6d;
-      animation: beat 1s infinite;
-      margin-top: 100px;
+    /* ===== 中央心形与标题 ===== */
+    .heart-wrap{z-index:50;position:relative;display:flex;align-items:center;flex-direction:column;padding:20px}
+    /* 2D 心形（CSS） */
+    .heart{
+      width:100px;height:90px;background:var(--accent);position:relative;transform:rotate(-45deg);
+      margin:0 auto 14px; border-radius:6px; animation:beat 1s infinite; box-shadow:0 6px 18px rgba(0,0,0,0.12)
+    }
+    .heart::before,.heart::after{content:"";position:absolute;width:100px;height:90px;background:var(--accent);border-radius:50%}
+    .heart::before{top:-50px;left:0}
+    .heart::after{left:50px;top:0}
+    @keyframes beat{0%,100%{transform:scale(1) rotate(-45deg)}50%{transform:scale(1.18) rotate(-45deg)}}
+
+    h1{margin:6px 0 18px;font-size:1.8rem;color:#fff;text-shadow:0 3px 12px rgba(0,0,0,0.25)}
+
+    /* ===== 按钮区 ===== */
+    .controls{position:relative;z-index:60;display:flex;gap:12px;align-items:center;justify-content:center}
+    .btn{
+      padding:12px 22px;border-radius:28px;border:none;cursor:pointer;font-size:1rem;
+      transition:transform .18s, box-shadow .18s;
+      user-select:none;
+      box-shadow:0 6px 18px rgba(0,0,0,0.12);
+    }
+    .btn:active{transform:scale(.98)}
+    .btn-like{
+      background:var(--accent); color:#fff; box-shadow:0 10px 30px rgba(255,77,109,0.25);
+    }
+    .btn-like:hover{transform:scale(1.08); box-shadow:0 16px 40px rgba(255,77,109,0.34)}
+    .btn-no{
+      background:#fff; color:var(--accent); border:2px solid var(--accent); position:absolute;
     }
 
-    @keyframes beat {
-      0%, 100% { transform: scale(1); }
-      50% { transform: scale(1.2); }
+    /* ===== 信封与结果区 ===== */
+    #envelope{
+      z-index:70; width:220px;height:130px;background:#fff;border-radius:6px; display:none;
+      margin-top:18px; position:relative; cursor:pointer; box-shadow:0 12px 30px rgba(0,0,0,0.18);
     }
-
-    .question {
-      font-size: 28px;
-      margin: 20px 0;
-      color: #333;
+    #envelope::before{
+      content:"";position:absolute;left:0;right:0;margin:auto;top:-64px;width:0;height:0;
+      border-left:110px solid transparent;border-right:110px solid transparent;border-bottom:64px solid #fff;
+      border-radius:2px;
     }
+    #result{text-align:center;z-index:70;color:#fff;display:none;margin-top:12px;max-width:86vw;padding:10px 16px;font-size:1.05rem;text-shadow:0 3px 12px rgba(0,0,0,0.22)}
+    #hiddenMsg{display:none;position:fixed;left:50%;transform:translateX(-50%);bottom:22px;z-index:80;background:rgba(0,0,0,0.25);color:#fff;padding:10px 18px;border-radius:20px;font-weight:600}
 
-    .buttons {
-      margin-top: 40px;
-      position: relative;
-    }
+    /* ===== 星星/萤火虫（小点） ===== */
+    .star{position:fixed;width:3px;height:3px;background:#fff;border-radius:50%;opacity:.8;z-index:10;filter:drop-shadow(0 0 6px rgba(255,255,255,0.65));animation:twinkle linear infinite}
+    @keyframes twinkle{0%{opacity:.1}50%{opacity:1}100%{opacity:.1}}
 
-    button {
-      padding: 12px 25px;
-      font-size: 18px;
-      border: none;
-      border-radius: 10px;
-      cursor: pointer;
-      transition: 0.3s;
-    }
+    /* ===== 鼠标轨迹（小爱心） ===== */
+    .trail{position:fixed;pointer-events:none;font-size:14px;z-index:65;opacity:0.95;transform:translate(-50%,-50%);transition:transform .12s linear, opacity .4s}
 
-    #yesBtn {
-      background-color: #ff4d6d;
-      color: white;
-    }
+    /* ===== 飘落元素 ===== */
+    .falling{position:fixed;top:-40px;pointer-events:none;z-index:20;animation:fall linear forwards}
+    @keyframes fall{to{transform:translateY(110vh) rotate(360deg);opacity:0}}
 
-    #noBtn {
-      background-color: #ccc;
-      margin-left: 20px;
-      position: absolute;
-    }
+    /* ===== 点击波纹 ===== */
+    .ripple{position:fixed;border-radius:50%;background:rgba(255,255,255,.6);transform:scale(0);animation:rip .6s linear;pointer-events:none;z-index:80}
+    @keyframes rip{to{transform:scale(12);opacity:0}}
 
-    .message {
-      font-size: 24px;
-      color: #ff4d6d;
-      margin-top: 30px;
-      display: none;
-    }
+    /* ===== 烟花小点 (点击) ===== */
+    .fw{position:fixed;width:6px;height:6px;border-radius:50%;pointer-events:none;z-index:85}
 
-    /* “不喜欢？^^” 的提示 */
-    .no-message {
-      font-size: 22px;
-      color: #888;
-      margin-top: 20px;
-      opacity: 0;
-      transition: opacity 1s;
-    }
-
-    /* 彩带效果 */
-    .confetti {
-      position: fixed;
-      width: 10px;
-      height: 10px;
-      background: red;
-      top: -10px;
-      animation: fall 3s linear forwards;
-    }
-
-    @keyframes fall {
-      to {
-        transform: translateY(100vh) rotate(720deg);
-        opacity: 0;
-      }
-    }
-
-    /* 飘落爱心 */
-    .floating-heart {
-      position: fixed;
-      font-size: 24px;
-      color: #ff4d6d;
-      top: -30px;
-      animation: drop 5s linear forwards;
-      pointer-events: none;
-    }
-
-    @keyframes drop {
-      to {
-        transform: translateY(100vh);
-        opacity: 0;
-      }
+    /* 响应式 */
+    @media (max-width:480px){
+      .heart{width:82px;height:74px}
+      h1{font-size:1.4rem}
+      .btn{font-size:.95rem;padding:10px 18px}
+      #envelope{width:86vw}
+      #result{font-size:1rem}
     }
   </style>
 </head>
 <body>
-  <div class="heart">❤</div>
-  <div class="question">你喜欢我吗？</div>
-  <div class="buttons">
-    <button id="yesBtn">喜欢</button>
-    <button id="noBtn">不喜欢</button>
-  </div>
-  <div class="message" id="loveMessage">我也喜欢你！💖 一起走下去吧！</div>
-  <div class="no-message" id="noMessage">不喜欢？^^</div>
 
-  <audio id="bgMusic" loop>
-    <source src="https://www.bensound.com/bensound-music/bensound-romantic.mp3" type="audio/mpeg">
+  <!-- 层级较低的装饰元素会通过 JS 创建插入 -->
+  <div class="heart-wrap">
+    <div class="heart" aria-hidden="true"></div>
+    <h1>你喜欢我吗？</h1>
+
+    <div class="controls">
+      <button class="btn btn-like" id="likeBtn">喜欢 ❤️</button>
+      <button class="btn btn-no" id="noBtn">不喜欢 😢</button>
+    </div>
+
+    <div id="envelope" title="点击打开信封"></div>
+    <div id="result" role="status" aria-live="polite"></div>
+  </div>
+
+  <div id="hiddenMsg">💛 我会永远爱你 💛</div>
+
+  <!-- 音乐（可换成你自己的链接）——注意浏览器通常需要用户交互后才能播放 -->
+  <audio id="bgAudio" loop preload="auto">
+    <source src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_6d8b1f88f6.mp3?filename=romantic-piano-melody-9940.mp3" type="audio/mp3">
+    <!-- 若你有合法的《梦中的婚礼》MP3, 可替换上面的 src -->
   </audio>
 
-  <script>
-    const noBtn = document.getElementById("noBtn");
-    const yesBtn = document.getElementById("yesBtn");
-    const loveMessage = document.getElementById("loveMessage");
-    const noMessage = document.getElementById("noMessage");
-    const bgMusic = document.getElementById("bgMusic");
+<script>
+/* =========================
+   初始化变量与元素引用
+   ========================= */
+const likeBtn = document.getElementById('likeBtn');
+const noBtn   = document.getElementById('noBtn');
+const envelope= document.getElementById('envelope');
+const result  = document.getElementById('result');
+const hidden  = document.getElementById('hiddenMsg');
+const bgAudio = document.getElementById('bgAudio');
 
-    // “不喜欢”按钮移动
-    noBtn.addEventListener("mouseover", () => {
-      let x = Math.random() * (window.innerWidth - noBtn.offsetWidth);
-      let y = Math.random() * (window.innerHeight - noBtn.offsetHeight - 100) + 100;
-      noBtn.style.left = `${x}px`;
-      noBtn.style.top = `${y}px`;
+let likeCount = 0;
+let fallingTimer = null;
+let trailTimeouts = [];
+let starCount = Math.max(24, Math.floor(window.innerWidth/30));
 
-      // 显示“不喜欢？^^”
-      noMessage.style.opacity = 1;
-      setTimeout(() => {
-        noMessage.style.opacity = 0;
-      }, 2000);
-    });
+/* =========================
+   1) 创建星星 / 萤火虫
+   ========================= */
+function makeStars(){
+  for(let i=0;i<starCount;i++){
+    const s = document.createElement('div');
+    s.className = 'star';
+    // 分布随机位置
+    const t = Math.random()*100, l = Math.random()*100;
+    s.style.left = l + 'vw';
+    s.style.top  = t + 'vh';
+    // 每颗星闪烁节奏不同
+    const dur = 1.5 + Math.random()*2.5;
+    s.style.animationDuration = dur + 's';
+    s.style.animationDelay = (Math.random()*3) + 's';
+    s.style.opacity = (0.2 + Math.random()*0.9).toFixed(2);
+    document.body.appendChild(s);
+  }
+}
+makeStars();
 
-    // “喜欢”按钮
-    yesBtn.addEventListener("click", () => {
-      loveMessage.style.display = "block";
-      bgMusic.play();
+/* =========================
+   2) 鼠标跟随小爱心轨迹
+   ========================= */
+document.addEventListener('mousemove', e=>{
+  const t = document.createElement('div');
+  t.className = 'trail';
+  t.innerText = '💖';
+  t.style.left = e.pageX + 'px';
+  t.style.top  = e.pageY + 'px';
+  t.style.fontSize = (10 + Math.random()*12) + 'px';
+  document.body.appendChild(t);
+  // 平滑淡出
+  setTimeout(()=>{ t.style.opacity = '0'; }, 350);
+  setTimeout(()=>{ t.remove(); }, 900);
+});
 
-      // 背景渐变
-      document.body.style.background = "linear-gradient(135deg, #ffdde1, #ee9ca7)";
+/* =========================
+   3) 点击屏幕出现波纹 & 小烟花
+   ========================= */
+document.addEventListener('click', e=>{
+  // 波纹
+  const r = document.createElement('div');
+  r.className = 'ripple';
+  const size = Math.max(window.innerWidth, window.innerHeight) * 0.06;
+  r.style.width = r.style.height = size + 'px';
+  r.style.left = (e.clientX - size/2) + 'px';
+  r.style.top  = (e.clientY - size/2) + 'px';
+  document.body.appendChild(r);
+  setTimeout(()=>r.remove(), 650);
 
-      // 彩带
-      createConfetti();
-
-      // 飘落爱心
-      setInterval(createFloatingHeart, 500);
-    });
-
-    // 彩带
-    function createConfetti() {
-      for (let i = 0; i < 50; i++) {
-        const confetti = document.createElement("div");
-        confetti.classList.add("confetti");
-        confetti.style.left = Math.random() * window.innerWidth + "px";
-        confetti.style.backgroundColor = randomColor();
-        document.body.appendChild(confetti);
-        setTimeout(() => confetti.remove(), 3000);
-      }
-    }
-
-    // 随机颜色
-    function randomColor() {
-      const colors = ["#ff4d6d", "#ffcc00", "#66ccff", "#99ff66", "#ff9966"];
-      return colors[Math.floor(Math.random() * colors.length)];
-    }
-
-    // 飘落爱心
-    function createFloatingHeart() {
-      const heart = document.createElement("div");
-      heart.classList.add("floating-heart");
-      heart.textContent = "❤";
-      heart.style.left = Math.random() * window.innerWidth + "px";
-      document.body.appendChild(heart);
-      setTimeout(() => heart.remove(), 5000);
-    }
-  </script>
-</body>
-</html>
+  // 小烟花爆点
+  for(let i=0;i<10;i++){
+    const p = document.createElement('div');
+    p.className = 'fw';
+    const hue = Math.floor(Math.random()*360);
+    p.style.background = `hsl(${hue} 100% 60%)`;
+    p.style.left = e.clientX + 'px';
+    p.style.top  = e.clientY + 'px';
+    // 方向与速度
+    const angle = Math.random()*Math.PI*2;
+    const dist  = 40 + Math.random()*120;
+    const tx = Math.cos(angle)*dist;
+    const ty = Math.sin(angle)*dist;
+    p.style.transform = `translate(0,0)`;
+    p.style.transition = 'transform 700ms cubic-bezier(.2,.7,0,1), opacity 700ms';
+    document.body.appendChild(p);
+    setTi
