@@ -1,107 +1,153 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh">
 <head>
-  <meta charset="UTF-8" />
-  <title>摩斯密码转换器</title>
-  <link rel="stylesheet" href="https://pyscript.net/latest/pyscript.css" />
-  <script defer src="https://pyscript.net/latest/pyscript.js"></script>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      max-width: 600px;
-      margin: 2rem auto;
-      padding: 1rem;
-      background: #f9f9f9;
-      border-radius: 8px;
-    }
-    textarea {
-      width: 100%;
-      font-size: 1rem;
-      padding: 0.5rem;
-      box-sizing: border-box;
-    }
-    button {
-      font-size: 1rem;
-      padding: 0.5rem 1rem;
-      margin-right: 10px;
-      cursor: pointer;
-    }
-    #output {
-      white-space: pre-wrap;
-      background: #fff;
-      padding: 1rem;
-      border: 1px solid #ddd;
-      border-radius: 6px;
-      min-height: 3rem;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <title>摩斯密码转换器（支持中文+音频）</title>
+    <style>
+        body {
+            font-family: "Helvetica", sans-serif;
+            margin: 20px;
+            max-width: 800px;
+        }
+        textarea {
+            width: 100%;
+            height: 100px;
+            padding: 10px;
+            font-size: 16px;
+            margin-bottom: 10px;
+            resize: vertical;
+        }
+        button {
+            padding: 10px 15px;
+            margin: 5px;
+            font-size: 16px;
+        }
+    </style>
 </head>
 <body>
-  <h1>摩斯密码转换器 🔁 Morse Code Converter</h1>
+    <h1>摩斯密码转换器（支持中文 + 音频）</h1>
 
-  <label for="user-input">请输入英文或摩斯码：</label><br>
-  <textarea id="user-input" rows="4" cols="50" placeholder="输入英文（如：HELLO）或摩斯码（如：.... . .-.. .-.. ---）"></textarea><br><br>
+    <textarea id="textInput" placeholder="输入文本或摩斯码，例如：你好 或 .... . .-.. .-.. --- / .-- --- .-. .-.. -.."></textarea>
 
-  <button py-click="to_morse">英文 ➡ 摩斯码</button>
-  <button py-click="to_english">摩斯码 ➡ 英文</button><br><br>
+    <div>
+        <button onclick="textToMorse()">文字 → 摩斯码</button>
+        <button onclick="morseToText()">摩斯码 → 文字</button>
+        <button onclick="playMorse()">播放声音</button>
+        <button onclick="copyResult()">复制结果</button>
+    </div>
 
-  <h3>转换结果：</h3>
-  <div id="output"></div>
+    <h3>转换结果:</h3>
+    <textarea id="result" readonly></textarea>
 
-  <py-script>
-MORSE_CODE_DICT = {
-    '.-': 'A', '-...': 'B', '-.-.': 'C', '-..': 'D', '.': 'E',
-    '..-.': 'F', '--.': 'G', '....': 'H', '..': 'I', '.---': 'J',
-    '-.-': 'K', '.-..': 'L', '--': 'M', '-.': 'N', '---': 'O',
-    '.--.': 'P', '--.-': 'Q', '.-.': 'R', '...': 'S', '-': 'T',
-    '..-': 'U', '...-': 'V', '.--': 'W', '-..-': 'X', '-.--': 'Y',
-    '--..': 'Z', '-----': '0', '.----': '1', '..---': '2',
-    '...--': '3', '....-': '4', '.....': '5', '-....': '6',
-    '--...': '7', '---..': '8', '----.': '9'
-}
+    <script>
+        // 基础英文摩斯码映射
+        const morseCodeMap = {
+            'A': '.-',    'B': '-...',  'C': '-.-.', 'D': '-..',
+            'E': '.',     'F': '..-.',  'G': '--.',  'H': '....',
+            'I': '..',    'J': '.---',  'K': '-.-',  'L': '.-..',
+            'M': '--',    'N': '-.',    'O': '---',  'P': '.--.',
+            'Q': '--.-',  'R': '.-.',   'S': '...',  'T': '-',
+            'U': '..-',   'V': '...-',  'W': '.--',  'X': '-..-',
+            'Y': '-.--',  'Z': '--..',
+            '0': '-----', '1': '.----', '2': '..---', '3': '...--',
+            '4': '....-', '5': '.....', '6': '-....', '7': '--...',
+            '8': '---..', '9': '----.'
+        };
 
-ENGLISH_TO_MORSE = {v: k for k, v in MORSE_CODE_DICT.items()}
+        const reverseMorseCodeMap = {};
+        for (let key in morseCodeMap) {
+            reverseMorseCodeMap[morseCodeMap[key]] = key;
+        }
 
-from js import document
+        // 简单拼音映射（可扩展）
+        const pinyinMap = {
+            '你': 'NI', '好': 'HAO', '是': 'SHI', '我': 'WO', '爱': 'AI', '中': 'ZHONG', '国': 'GUO'
+        };
 
-def decoded_code(morse_code):
-    words = morse_code.strip().split('|')
-    decoded_message = []
-    for word in words:
-        letters = word.strip().split()
-        decoded_word = ''.join(MORSE_CODE_DICT.get(letter, '?') for letter in letters)
-        decoded_message.append(decoded_word)
-    return ' '.join(decoded_message)
+        function chineseToPinyin(text) {
+            return text.split('').map(char => pinyinMap[char] || '?').join(' ');
+        }
 
-def encode_to_morse(text):
-    morse_words = []
-    for word in text.strip().upper().split():
-        morse_letters = []
-        for char in word:
-            if char in ENGLISH_TO_MORSE:
-                morse_letters.append(ENGLISH_TO_MORSE[char])
-            else:
-                morse_letters.append("?")
-        morse_word = ' '.join(morse_letters)
-        morse_words.append(morse_word)
-    return ' | '.join(morse_words)
+        function textToMorse() {
+            let input = document.getElementById('textInput').value.toUpperCase();
+            // 如果包含中文字符，先转拼音
+            if (/[^\x00-\x7F]/.test(input)) {
+                input = chineseToPinyin(input);
+            }
 
-def to_morse(*args):
-    input_text = document.getElementById("user-input").value
-    if not input_text.strip():
-        document.getElementById("output").innerHTML = "请输入英文文本进行转换。"
-        return
-    result = encode_to_morse(input_text)
-    document.getElementById("output").innerHTML = result
+            let output = '';
+            for (let char of input) {
+                if (char === ' ') {
+                    output += ' / ';
+                } else if (morseCodeMap[char]) {
+                    output += morseCodeMap[char] + ' ';
+                } else {
+                    output += '? ';
+                }
+            }
+            document.getElementById('result').value = output.trim();
+        }
 
-def to_english(*args):
-    input_text = document.getElementById("user-input").value
-    if not input_text.strip():
-        document.getElementById("output").innerHTML = "请输入摩斯码进行转换。"
-        return
-    result = decoded_code(input_text)
-    document.getElementById("output").innerHTML = result
-  </py-script>
+        function morseToText() {
+            const input = document.getElementById('textInput').value.trim();
+            const words = input.split(' / ');
+            let output = '';
+            for (let word of words) {
+                let letters = word.trim().split(' ');
+                for (let letter of letters) {
+                    if (reverseMorseCodeMap[letter]) {
+                        output += reverseMorseCodeMap[letter];
+                    } else {
+                        output += '?';
+                    }
+                }
+                output += ' ';
+            }
+            document.getElementById('result').value = output.trim();
+        }
 
+        function playMorse() {
+            const morse = document.getElementById('result').value;
+            const dotDuration = 100; // 毫秒
+            const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+            let time = audioCtx.currentTime;
+
+            for (let char of morse) {
+                if (char === '.') {
+                    playBeep(audioCtx, time, dotDuration);
+                    time += (dotDuration + 50) / 1000;
+                } else if (char === '-') {
+                    playBeep(audioCtx, time, dotDuration * 3);
+                    time += (dotDuration * 3 + 50) / 1000;
+                } else if (char === ' ') {
+                    time += 0.2;
+                } else if (char === '/') {
+                    time += 0.5;
+                }
+            }
+        }
+
+        function playBeep(audioCtx, startTime, duration) {
+            const oscillator = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+
+            oscillator.type = 'sine';
+            oscillator.frequency.setValueAtTime(600, startTime);
+
+            oscillator.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+
+            oscillator.start(startTime);
+            oscillator.stop(startTime + duration / 1000);
+        }
+
+        function copyResult() {
+            const result = document.getElementById('result');
+            result.select();
+            document.execCommand('copy');
+            alert('已复制结果！');
+        }
+    </script>
 </body>
 </html>
