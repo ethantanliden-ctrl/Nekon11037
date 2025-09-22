@@ -1,55 +1,90 @@
-<!DOCTYPE html>
-<html lang="zh">
-<head>
-  <meta charset="UTF-8">
-  <title>ChatGPT 聊天网站</title>
-  <style>
-    body { font-family: Arial; max-width: 600px; margin: auto; padding: 20px; }
-    #chat { border: 1px solid #ccc; padding: 10px; height: 400px; overflow-y: auto; }
-    .msg { margin: 5px 0; }
-    .user { color: blue; }
-    .bot { color: green; }
-  </style>
-</head>
-<body>
-  <h2>ChatGPT 聊天</h2>
-  <div id="chat"></div>
-  <input id="input" type="text" placeholder="输入消息..." style="width:80%;">
-  <button onclick="send()">发送</button>
-
-  <script>
-    const apiKey = "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"; // ⚠️ 实际部署不要放前端
-
-    async function send() {
-      const input = document.getElementById("input");
-      const chat = document.getElementById("chat");
-
-      // 显示用户消息
-      chat.innerHTML += `<div class="msg user">你: ${input.value}</div>`;
-
-      // 调用 OpenAI API
-      const response = await fetch("https://api.openai.com/v1/chat/completions", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${apiKey}`
-        },
-        body: JSON.stringify({
-          model: "gpt-3.5-turbo",  // 或者 gpt-4 / gpt-4o
-          messages: [{ role: "user", content: input.value }]
-        })
-      });
-
-      const data = await response.json();
-      const reply = data.choices[0].message.content;
-
-      // 显示机器人消息
-      chat.innerHTML += `<div class="msg bot">ChatGPT: ${reply}</div>`;
-      input.value = "";
-      chat.scrollTop = chat.scrollHeight;
+<!DOCTYPE HTML>
+<html lang='zh'>
+  <head>
+    <meta charset="utf-8">
+    <meta name='required'>
+    <title>统网</title>
+    <style>
+    #top-time-bar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    background-color: #222;
+    color: #fff;
+    text-align: center;
+    padding: 10px 20px;
+    font-family: "Courier New", monospace;
+    font-size: 16px;
+    z-index: 1000;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
     }
-  </script>
-</body>
+    </style>
+    
+  </head>
+  <body>
+    <h1>统网</h1>
+    <p>统网统网您最喜欢的中国网站</p>
+    
+  <!-- 顶部时间栏 -->
+    <div id="top-time-bar">
+      当前时间：<span id="clock">加载中...</span>
+    </div>
+  
+
+  <!-- 正文内容 -->
+    <div>
+      <h2>欢迎使用统网</h2>
+      <p>人手一统网家家没烦恼</p>
+    </div>
+
+    <script>
+      function formatTime(date) {
+        const y = date.getFullYear();
+        const m = String(date.getMonth() + 1).padStart(2, '0');
+        const d = String(date.getDate()).padStart(2, '0');
+        const h = String(date.getHours()).padStart(2, '0');
+        const min = String(date.getMinutes()).padStart(2, '0');
+        const s = String(date.getSeconds()).padStart(2, '0');
+        return ${y}-${m}-${d} ${h}:${min}:${s};
+      }
+
+      function updateClock() {
+        const now = new Date();
+        document.getElementById('clock').innerText = formatTime(now);
+      }
+
+      setInterval(updateClock, 1000);
+      updateClock(); // 页面加载时立即执行一次
+    </script>
+
+
+    <p id="current-time"></p>
+    <ol>
+      <li>
+        <a href="https://baidu.com">百度</a>
+      </li>
+      <li>
+        <a href="https://deepseek.com">deepseek</a>
+      </li>
+      <li>
+        <a href="https://bilibili.com">b站</a>
+      </li>
+      <li>
+        <a href ="https://bk88.com">siongkai的网站</a>
+      </li>
+      <li>
+        <a href="https://www.taobao.com/">淘宝</a>
+      </li>
+      <li>
+        <a href="https://onecompiler.com/html/">html</a>
+        
+      </li>
+      <li>
+        <a href="https://www.programiz.com/python-programming/online-compiler/">python</a>
+      </li>
+    </ol>
+  </body>
 </html>
 
 
